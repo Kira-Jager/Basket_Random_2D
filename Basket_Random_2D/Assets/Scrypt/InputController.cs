@@ -16,6 +16,8 @@ public class InputController : MonoBehaviour
     public delegate void OnThrowAction();
     public static event OnThrowAction onThrow;
 
+
+    
     // Start is called before the first frame update
     void Start()
     {

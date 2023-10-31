@@ -31,17 +31,6 @@ public class Player : MonoBehaviour
         }
 
 
-
-        if (ballCathed && isJumping)
-        {
-            //Invoke("disablePlayerKinematic", .3f);
-
-
-            //{disablePlayerKinematic();
-            //Invoke("activatePlayerKinematic",.2f);}
-
-        }
-
         if (isMoving)
         {
             setAnimation("run", true);
@@ -73,15 +62,18 @@ public class Player : MonoBehaviour
 
     private void playerThrowBall()
     {
+
+        if (ballCathed)
+        {
+            disableBoxCollider();
+
+            Invoke("activateBoxCollider", .1f);
+        }
         ballCathed = false;
-        disableBoxCollider();
 
 
-        Invoke("activateBoxCollider",.1f);
+        
         //Debug.Log("Ball throw");
-
-        //{Invoke("disablePlayerKinematic", .3f);}
-
 
     }
 
@@ -100,43 +92,17 @@ public class Player : MonoBehaviour
 
     private void playerGetBall()
     {
+        //reset velocity to avoid ball moving much forward
+        rb.velocity = Vector3.zero;
         ballCathed = true;
         Debug.Log("Player get ball");
-        //activatePlayerKinematic();
 
-    }
-
-    private void activatePlayerKinematic()
-    {
-
-        BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
-
-        boxCollider.enabled = false;
-
-        rb.isKinematic = true;
-
-        Debug.Log("Player kinematic activate");
-
-    }
-
-    private void disablePlayerKinematic()
-    {
-
-        BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
-        boxCollider.enabled = true;
-        Debug.Log("Player kinematic disable");
-
-
-        rb.isKinematic = false;
     }
 
     private void jump()
     {
         if (!isJumping)
         {
-
-
-            //disablePlayerKinematic();
 
             isJumping = true;
 
@@ -181,6 +147,8 @@ public class Player : MonoBehaviour
         transform.rotation = Quaternion.Euler(rotation);
 
     }
+
+
 
 
     private void setAnimation(string animationName, bool animationState)
