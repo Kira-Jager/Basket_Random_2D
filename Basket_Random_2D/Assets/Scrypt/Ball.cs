@@ -43,11 +43,11 @@ public class Ball : MonoBehaviour
 
         if (ballThrowing)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, 0);
-            transform.SetParent(null);
-
             rb.isKinematic = false;
+            //disableKinematic();
 
+            //transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+            transform.SetParent(null);
 
             // Calculate the direction to the target
             Vector3 direction = (target.position - transform.position).normalized;
@@ -67,19 +67,21 @@ public class Ball : MonoBehaviour
         if (ballCathed == false && ballKinematic == true)
         {
             disableKinematic();
-            Debug.Log("ball catch == false");
+            //Debug.Log("ball catch == false");
 
         }
+
     }
 
 
     private void throwBall()
     {
-        ballThrowing = true;
-        ballCathed = false;
         setAnimation("drible", false);
 
-        Debug.Log("ball throw");
+        ballThrowing = true;
+        ballCathed = false;
+
+        //Debug.Log("ball throw");
 
     }
 
@@ -113,6 +115,8 @@ public class Ball : MonoBehaviour
         {
             rb.isKinematic = true;
             ballKinematic = true;
+            //Debug.Log("Kinematic activate");
+
         }
 
     }
@@ -129,7 +133,7 @@ public class Ball : MonoBehaviour
         {
             Debug.Log("Contact with player");
 
-            transform.SetParent(collision.gameObject.transform, false);
+            transform.SetParent(collision.gameObject.transform, true);
 
             ballCathed = true;
             ballCatched?.Invoke();
@@ -138,12 +142,11 @@ public class Ball : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("ground") && !ballThrowing)
         {
             activateKinematic();
-            //Debug.Log("Kinematic activate");
 
         }
     }
 
-    /*    private void OnCollisionExit(Collision collision)
+      /* private void OnCollisionExit(Collision collision)
         {
             if (collision.gameObject.CompareTag("Player"))
             {

@@ -39,6 +39,8 @@ public class InputController : MonoBehaviour
         {
             bool isMovingRight = Input.GetKey(KeyCode.D);
             onMove?.Invoke(isMovingRight);
+
+            //Debug.Log("Key Move pressed");
         }
 
         if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A))

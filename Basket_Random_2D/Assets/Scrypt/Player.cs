@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
 
     public bool isJumping = false;
     public bool isMoving = false;
+    public bool ballCathed = false;
 
     private Vector3 newPosition = Vector3.zero;
     private Animator animator;
@@ -24,13 +25,24 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isMoving)
+        if (ballCathed && !isJumping)
         {
             setAnimation("drible", true);
         }
-        else
+
+
+
+        if (ballCathed && isJumping)
         {
-            setAnimation("drible", false);
+
+            Invoke("disablePlayerKinematic", .3f);
+            //Invoke("activatePlayerKinematic",.2f);
+
+        }
+
+        if (isMoving)
+        {
+            setAnimation("run", true);
         }
     }
 
@@ -39,6 +51,10 @@ public class Player : MonoBehaviour
         InputController.onJump += jump;
         InputController.onMove += move;
         InputController.onKeyRelease += stopRunning;
+        InputController.onThrow += playerThrowBall;
+
+
+        Ball.ballCatched += playerGetBall;
     }
 
     private void OnDisable()
@@ -46,18 +62,65 @@ public class Player : MonoBehaviour
         InputController.onJump -= jump;
         InputController.onMove -= move;
         InputController.onKeyRelease -= stopRunning;
+        InputController.onThrow -= playerThrowBall;
 
+
+        Ball.ballCatched -= playerGetBall;
+
+    }
+
+    private void playerThrowBall()
+    {
+        ballCathed = false;
+        //Debug.Log("Ball throw");
+        //Invoke("disablePlayerKinematic", .3f);
+
+
+    }
+    private void playerGetBall()
+    {
+        ballCathed = true;
+        Debug.Log("Player get ball");
+        activatePlayerKinematic();
+
+    }
+
+    private void activatePlayerKinematic()
+    {
+
+        BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+
+        boxCollider.enabled = false;
+
+        rb.isKinematic = true;
+
+        Debug.Log("Player kinematic activate");
+
+    }
+
+    private void disablePlayerKinematic()
+    {
+
+        BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+        boxCollider.enabled = true;
+        Debug.Log("Player kinematic disable");
+
+
+        rb.isKinematic = false;
     }
 
     private void jump()
     {
         if (!isJumping)
         {
-            rb.AddForce(Vector3.up * jumpForce);
-            Debug.Log("called");
+            disablePlayerKinematic();
             isJumping = true;
 
+            Debug.Log("called in jump");
+            rb.AddForce(Vector3.up * jumpForce);
+
             setAnimation("run", false);
+            setAnimation("drible", false);
         }
     }
 
@@ -65,10 +128,7 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("ground"))
         {
-
             isJumping = false;
-
-
         }
     }
 
@@ -78,8 +138,6 @@ public class Player : MonoBehaviour
         {
             setAnimation("drible", false);
         }
-
-
     }
 
     private void move(bool isMovingRight)
@@ -108,7 +166,7 @@ public class Player : MonoBehaviour
 
     private void stopRunning()
     {
-        Debug.Log("stopRunning");
+        //Debug.Log("stopRunning");
         isMoving = false;
         setAnimation("run", false);
     }
