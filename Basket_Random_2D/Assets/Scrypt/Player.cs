@@ -34,9 +34,11 @@ public class Player : MonoBehaviour
 
         if (ballCathed && isJumping)
         {
+            //Invoke("disablePlayerKinematic", .3f);
 
-            Invoke("disablePlayerKinematic", .3f);
-            //Invoke("activatePlayerKinematic",.2f);
+
+            //{disablePlayerKinematic();
+            //Invoke("activatePlayerKinematic",.2f);}
 
         }
 
@@ -72,16 +74,35 @@ public class Player : MonoBehaviour
     private void playerThrowBall()
     {
         ballCathed = false;
+        disableBoxCollider();
+
+
+        Invoke("activateBoxCollider",.1f);
         //Debug.Log("Ball throw");
-        //Invoke("disablePlayerKinematic", .3f);
+
+        //{Invoke("disablePlayerKinematic", .3f);}
 
 
     }
+
+    private void disableBoxCollider()
+    {
+        BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+
+        boxCollider.enabled = false;
+    }
+       private void activateBoxCollider()
+    {
+        BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+
+        boxCollider.enabled = true;
+    }
+
     private void playerGetBall()
     {
         ballCathed = true;
         Debug.Log("Player get ball");
-        activatePlayerKinematic();
+        //activatePlayerKinematic();
 
     }
 
@@ -113,7 +134,10 @@ public class Player : MonoBehaviour
     {
         if (!isJumping)
         {
-            disablePlayerKinematic();
+
+
+            //disablePlayerKinematic();
+
             isJumping = true;
 
             Debug.Log("called in jump");

@@ -14,7 +14,6 @@ public class Ball : MonoBehaviour
 
     private Rigidbody rb;
 
-
     public Transform target;
     public float throwingForce = 10f;
 
@@ -61,7 +60,6 @@ public class Ball : MonoBehaviour
             // Reset the flag to stop updating the velocity
             ballThrowing = false;
 
-
         }
 
         if (ballCathed == false && ballKinematic == true)
@@ -76,10 +74,15 @@ public class Ball : MonoBehaviour
 
     private void throwBall()
     {
-        setAnimation("drible", false);
+        if (ballCathed)
+        {
+            setAnimation("drible", false);
 
-        ballThrowing = true;
-        ballCathed = false;
+
+            ballThrowing = true;
+            ballCathed = false;
+
+        }
 
         //Debug.Log("ball throw");
 
@@ -105,6 +108,8 @@ public class Ball : MonoBehaviour
         {
             rb.isKinematic = false;
             ballKinematic = false;
+
+            //setAnimation("ballJump", true);
             //Debug.Log("Kinematic disable");
         }
     }
