@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -11,11 +12,35 @@ public class Player : MonoBehaviour
     public bool isMoving = false;
     public bool ballCathed = false;
 
+    private Collision lastCollision = null;
+
+    public Transform target;
+
+    private InputController controller;
+
     private Vector3 newPosition = Vector3.zero;
     private Animator animator;
 
+    public delegate void OnJumpKeyAction();
+    public event OnJumpKeyAction onJumpKeyPressed;
+
+    public delegate void onJumpReleaseAction(Transform targeted);
+    public event onJumpReleaseAction onThrowKey;
+
+    public delegate void OnBallCatched();
+    public event OnBallCatched playerCatchball;
+    
+    public delegate void onePlayerThrowBall();
+    public static event OnBallCatched onePlayerThrow;
+
     Rigidbody rb;
     // Start is called before the first frame update
+    private void Awake()
+    {
+        controller = GetComponent<InputController>();
+
+    }
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -30,33 +55,24 @@ public class Player : MonoBehaviour
             setAnimation("drible", true);
         }
 
-
-        if (isMoving)
-        {
-            setAnimation("run", true);
-        }
     }
 
     private void OnEnable()
     {
-        InputController.onJump += jump;
-        InputController.onMove += move;
-        InputController.onKeyRelease += stopRunning;
-        InputController.onThrow += playerThrowBall;
+        controller.onJump += jump;
+        controller.onMove += move;
+        controller.onKeyRelease += stopRunning;
+        controller.onThrow += playerThrowBall;
 
-
-        Ball.ballCatched += playerGetBall;
     }
 
     private void OnDisable()
     {
-        InputController.onJump -= jump;
-        InputController.onMove -= move;
-        InputController.onKeyRelease -= stopRunning;
-        InputController.onThrow -= playerThrowBall;
+        controller.onJump -= jump;
+        controller.onMove -= move;
+        controller.onKeyRelease -= stopRunning;
+        controller.onThrow -= playerThrowBall;
 
-
-        Ball.ballCatched -= playerGetBall;
 
     }
 
@@ -68,12 +84,19 @@ public class Player : MonoBehaviour
             disableBoxCollider();
 
             Invoke("activateBoxCollider", .1f);
+
+            onThrowKey?.Invoke(target);
+
+            onePlayerThrow?.Invoke();
         }
         ballCathed = false;
 
+        if(lastCollision != null && target != null)
+        {
+            Debug.Log(lastCollision.gameObject.name +" in throw ball");
+            lastCollision.gameObject.GetComponent<Ball>().throwBall(target);
+        }
 
-        
-        //Debug.Log("Ball throw");
 
     }
 
@@ -83,21 +106,14 @@ public class Player : MonoBehaviour
 
         boxCollider.enabled = false;
     }
-       private void activateBoxCollider()
+    private void activateBoxCollider()
     {
         BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
 
         boxCollider.enabled = true;
     }
 
-    private void playerGetBall()
-    {
-        //reset velocity to avoid ball moving much forward
-        rb.velocity = Vector3.zero;
-        ballCathed = true;
-        Debug.Log("Player get ball");
 
-    }
 
     private void jump()
     {
@@ -106,11 +122,24 @@ public class Player : MonoBehaviour
 
             isJumping = true;
 
-            Debug.Log("called in jump");
-            rb.AddForce(Vector3.up * jumpForce);
+            onJumpKeyPressed?.Invoke();
 
+            if (lastCollision != null)
+            {
+                Debug.Log(lastCollision.gameObject.name + " in jump");
+
+                lastCollision.gameObject.GetComponent<Ball>().ballJump();
+            }
+
+            Debug.Log("called in jump");
+            rb.AddForce(Vector3.up * jumpForce  , ForceMode.Impulse);
+
+            //rb.velocity = Vector3.up * jumpForce * Time.deltaTime;
             setAnimation("run", false);
             setAnimation("drible", false);
+
+           
+
         }
     }
 
@@ -120,6 +149,39 @@ public class Player : MonoBehaviour
         {
             isJumping = false;
         }
+
+
+        //lastcollision variable is not working correctly 
+        if (collision.gameObject.CompareTag("ball") && !ballCathed)
+        {
+            lastCollision = collision; // Update lastCollision only if it's a valid ball collision
+            playerGetBall(collision);
+        }
+    }
+
+    private void playerGetBall(Collision collision)
+    {
+        
+        if (collision.gameObject.CompareTag("ball") && !ballCathed)
+        {
+            lastCollision = collision;
+
+            ballCathed = true;
+
+            //rb.isKinematic = true;
+
+            playerCatchball?.Invoke();
+
+            collision.gameObject.GetComponent<Ball>().ballCatch();
+
+            Debug.Log("Player get ball");
+
+
+            //Debug.Log(lastCollision.gameObject.name);
+            collision.gameObject.transform.SetParent(transform);
+
+
+        }
     }
 
     private void OnCollisionExit(Collision collision)
@@ -128,16 +190,26 @@ public class Player : MonoBehaviour
         {
             setAnimation("drible", false);
         }
+
+     /*   if (collision.gameObject.CompareTag("ball"))
+        {
+            ballCathed = false;
+        }*/
     }
 
     private void move(bool isMovingRight)
     {
         isMoving = true;
-        setAnimation("run", true);
+
+        if (!isJumping)
+        {
+            setAnimation("run", true);
+        }
+        //setAnimation("run", true);
 
         float direction = isMovingRight ? 1 : -1;
 
-        Vector3 newPosition = Vector3.right * speed * direction;
+        Vector3 newPosition = Vector3.right * speed * direction ;
 
         transform.position += newPosition;
 
@@ -147,9 +219,6 @@ public class Player : MonoBehaviour
         transform.rotation = Quaternion.Euler(rotation);
 
     }
-
-
-
 
     private void setAnimation(string animationName, bool animationState)
     {

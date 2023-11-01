@@ -15,17 +15,30 @@ public class Ball : MonoBehaviour
     private bool ballKinematic = false;
     private bool ballThrowing = false;
     private bool isFacingTarget = false;
+    private Transform target;
 
     private Rigidbody rb;
 
-    public Transform target;
+    public GameObject player1Object;
+    public GameObject player2Object;
+
+    private Player player1;
+    private Player player2;
+
     public float throwingForce = 10f;
 
-    public delegate void OnBallCatched();
-    public static event OnBallCatched ballCatched;
+    /* public delegate void OnBallCatched();
+     public event OnBallCatched ballCatched;*/
 
 
+    /*private void Awake()
+    {
+        player1 = player1Object.GetComponent<Player>();
+        player2 = player2Object.GetComponent<Player>();
 
+        
+        //Debug.Log("Pllayer declared");
+    }*/
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -39,130 +52,96 @@ public class Ball : MonoBehaviour
     {
         if (ballCathed && !playerJumping)
         {
-
-            //setAnimation("drible", true);
-        }
-
-        if (playerJumping)
-        {
-            
-
-            // setAnimation("drible", false);
-            //setAnimation("ballJump", true);
-            playerJumping = false;
-
-            if(controlThrowingDirection() == false)
-            {
-
-            }
-        }
-
-
-
-
-        if (ballThrowing)
-        {
-            throwProjectile();
-
-        }
-
-        if (ballCathed == false && ballKinematic == true)
-        {
-            disableKinematic();
-            //Debug.Log("ball catch == false");
-
+            setAnimation("drible", true);
         }
 
     }
 
-    private void throwProjectile()
+    private void throwBallProjectile()
     {
         rb.isKinematic = false;
 
-        //transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+        //Unparrent the ball
         transform.SetParent(null);
 
 
         //EditorApplication.isPaused = true;
         // Calculate the direction to the target
+
         Vector3 direction = (target.position - transform.position).normalized;
 
         // Calculate the velocity needed to reach the target
         float initialVelocity = Mathf.Sqrt(throwingForce * Physics.gravity.magnitude / Mathf.Sin(2 * Mathf.Deg2Rad * Vector3.Angle(direction, Vector3.up)));
 
         // Set the velocity to achieve the calculated initial velocity
-        rb.velocity = direction * initialVelocity;
+        rb.velocity = direction * initialVelocity ;
 
-        // Reset the flag to stop updating the velocity
-        ballThrowing = false;
+        // enable the animator to allow dribling
+        animator.enabled = true;
     }
 
-    private void throwBall()
+    public void throwBall(Transform targeted)
     {
-        if (ballCathed && controlThrowingDirection())
+        //if (ballCathed && controlThrowingDirection())
+        if (ballCathed )
         {
+            target = targeted;
+
             setAnimation("drible", false);
 
-
             ballThrowing = true;
+
             ballCathed = false;
 
-            animator.enabled = true;
+            throwBallProjectile();
+
         }
             playerJumping = false;
-        //Debug.Log("ball throw");
+        Debug.Log("ball throw");
 
     }
 
 
     //change to use it player
-    private void OnEnable()
+/*   private void OnEnable()
     {
-        InputController.onJump += ballJump;
-        InputController.onThrow += throwBall;
+        player1.onJumpKeyPressed += ballJump;
+        player1.onThrowKey += throwBall;
+        player1.playerCatchball += ballCatch;
+
+        player2.onJumpKeyPressed += ballJump;
+        player2.onThrowKey += throwBall;
+        player2.playerCatchball += ballCatch;
     }
 
     private void OnDisable()
     {
-        InputController.onJump -= ballJump;
-        InputController.onThrow -= throwBall;
+        player1.onJumpKeyPressed -= ballJump;
+        player1.onThrowKey -= throwBall;
+        player1.playerCatchball -= ballCatch;
+        
+        player2.onJumpKeyPressed -= ballJump;
+        player2.onThrowKey -= throwBall;
+        player2.playerCatchball -= ballCatch;
 
+
+    }*/
+
+    public void ballCatch()
+    {
+        ballCathed = true;
+        rb.isKinematic = true;
     }
 
-    private void ballJump()
+    public void ballJump()
     {
+        Debug.Log("Inside ball Jump");
+
         playerJumping = true;
 
         if (ballCathed)
         {
             animator.enabled = false;
-        }
-
-        disableKinematic();
-    }
-
-
-    private void disableKinematic()
-    {
-        if (ballKinematic == true)
-        {
-            rb.isKinematic = false;
-            ballKinematic = false;
-
-
-            //setAnimation("ballJump", true);
-            //Debug.Log("Kinematic disable");
-        }
-    }
-
-    private void activateKinematic()
-    {
-        if (!ballKinematic)
-        {
-            rb.isKinematic = true;
-            ballKinematic = true;
-            //Debug.Log("Kinematic activate");
-
         }
 
     }
@@ -191,26 +170,6 @@ public class Ball : MonoBehaviour
         animator.SetBool(animationName, animationState);
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player") && !ballCathed)
-        {
-            Debug.Log("Contact with player");
-            ballCatched?.Invoke();
 
-            transform.SetParent(collision.gameObject.transform, true);
-
-            ballCathed = true;
-
-            //reset ball rotation
-            transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-
-        if (collision.gameObject.layer == LayerMask.NameToLayer("ground") && !ballThrowing)
-        {
-            activateKinematic();
-
-        }
-    }
 
 }
