@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     public bool isMoving = false;
     public bool ballCathed = false;
 
-    private Collision lastCollision = null;
+    private Ball ballComponent = null;
 
     public Transform target;
 
@@ -78,6 +78,7 @@ public class Player : MonoBehaviour
 
     private void playerThrowBall()
     {
+        //Debug.Log(lastCollision.gameObject.name + " in throw ball first part");
 
         if (ballCathed)
         {
@@ -91,10 +92,12 @@ public class Player : MonoBehaviour
         }
         ballCathed = false;
 
-        if(lastCollision != null && target != null)
+        if(ballComponent != null && target != null)
         {
-            Debug.Log(lastCollision.gameObject.name +" in throw ball");
-            lastCollision.gameObject.GetComponent<Ball>().throwBall(target);
+            Debug.Log(ballComponent.gameObject.name +" in throw ball");
+            ballComponent.throwBall(target);
+
+            ballComponent = null;
         }
 
 
@@ -124,11 +127,11 @@ public class Player : MonoBehaviour
 
             onJumpKeyPressed?.Invoke();
 
-            if (lastCollision != null)
+            if (ballComponent != null)
             {
-                Debug.Log(lastCollision.gameObject.name + " in jump");
+                Debug.Log(ballComponent.gameObject.name + " in jump");
 
-                lastCollision.gameObject.GetComponent<Ball>().ballJump();
+                ballComponent.ballJump();
             }
 
             Debug.Log("called in jump");
@@ -154,8 +157,9 @@ public class Player : MonoBehaviour
         //lastcollision variable is not working correctly 
         if (collision.gameObject.CompareTag("ball") && !ballCathed)
         {
-            lastCollision = collision; // Update lastCollision only if it's a valid ball collision
+            ballComponent = collision.gameObject.GetComponent<Ball>(); // Update lastCollision only if it's a valid ball collision
             playerGetBall(collision);
+            Debug.Log("collision in enter" + collision.gameObject.name);
         }
     }
 
@@ -164,15 +168,13 @@ public class Player : MonoBehaviour
         
         if (collision.gameObject.CompareTag("ball") && !ballCathed)
         {
-            lastCollision = collision;
-
             ballCathed = true;
 
             //rb.isKinematic = true;
 
             playerCatchball?.Invoke();
 
-            collision.gameObject.GetComponent<Ball>().ballCatch();
+            ballComponent.ballCatch();
 
             Debug.Log("Player get ball");
 

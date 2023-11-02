@@ -537,7 +537,7 @@ GameObject:
   - component: {fileID: 1437388905}
   m_Layer: 0
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: ball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -626,6 +626,10 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 1313406495}
+    - target: {fileID: 5312426231440349344, guid: 72d0dd87ad231234f85324f5285892a5, type: 3}
+      propertyPath: jumpForce
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 5312426231440349345, guid: 72d0dd87ad231234f85324f5285892a5, type: 3}
       propertyPath: jumpKey
       value: 273
@@ -947,6 +951,18 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 1853808105}
+    - target: {fileID: 5312426231440349344, guid: 72d0dd87ad231234f85324f5285892a5, type: 3}
+      propertyPath: jumpForce
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5312426231563131028, guid: 72d0dd87ad231234f85324f5285892a5, type: 3}
+      propertyPath: m_Size.x
+      value: 0.24507782
+      objectReference: {fileID: 0}
+    - target: {fileID: 5312426231563131028, guid: 72d0dd87ad231234f85324f5285892a5, type: 3}
+      propertyPath: m_Center.x
+      value: 0.13820325
+      objectReference: {fileID: 0}
     - target: {fileID: 5634916826618193375, guid: 72d0dd87ad231234f85324f5285892a5, type: 3}
       propertyPath: m_RootOrder
       value: 2
