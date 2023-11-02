@@ -7,44 +7,24 @@ public class Ball : MonoBehaviour
 {
     // Start is called before the first frame update
 
-    private Animator animator;
 
     private bool ballCathed = false;
     private bool playerJumping = false;
 
-    private bool ballKinematic = false;
-    private bool ballThrowing = false;
-    private bool isFacingTarget = false;
+    private Animator animator;
     private Transform target;
 
     private Rigidbody rb;
 
-    public GameObject player1Object;
-    public GameObject player2Object;
-
-    private Player player1;
-    private Player player2;
-
     public float throwingForce = 10f;
+    public float BounceForce = 1f;
 
-    /* public delegate void OnBallCatched();
-     public event OnBallCatched ballCatched;*/
-
-
-    /*private void Awake()
-    {
-        player1 = player1Object.GetComponent<Player>();
-        player2 = player2Object.GetComponent<Player>();
-
-        
-        //Debug.Log("Pllayer declared");
-    }*/
     void Start()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
 
-        rb.isKinematic = true;
+        //rb.isKinematic = true;
     }
 
     // Update is called once per frame
@@ -61,24 +41,26 @@ public class Ball : MonoBehaviour
     {
         rb.isKinematic = false;
 
-        //Unparrent the ball
+        // Unparent the ball
         transform.SetParent(null);
 
-
-        //EditorApplication.isPaused = true;
         // Calculate the direction to the target
+        Vector3 targetPosition = target.position;
+        Vector3 currentPosition = transform.position;
 
-        Vector3 direction = (target.position - transform.position).normalized;
+        // Calculate the relative position to the target, including Y-axis
+        Vector3 direction = targetPosition - currentPosition;
 
         // Calculate the velocity needed to reach the target
-        float initialVelocity = Mathf.Sqrt(throwingForce * Physics.gravity.magnitude / Mathf.Sin(2 * Mathf.Deg2Rad * Vector3.Angle(direction, Vector3.up)));
+        float initialVelocity = Mathf.Sqrt(throwingForce * Physics.gravity.magnitude / (Mathf.Sin(2 * Mathf.Deg2Rad * Vector3.Angle(direction, Vector3.up))));
 
-        // Set the velocity to achieve the calculated initial velocity
-        rb.velocity = direction * initialVelocity ;
+        // velocity To reach the target in the direction
+        rb.velocity = direction.normalized * initialVelocity;
 
-        // enable the animator to allow dribling
+        // Enable the animator to allow dribbling
         animator.enabled = true;
     }
+
 
     public void throwBall(Transform targeted)
     {
@@ -88,8 +70,6 @@ public class Ball : MonoBehaviour
             target = targeted;
 
             setAnimation("drible", false);
-
-            ballThrowing = true;
 
             ballCathed = false;
 
@@ -101,32 +81,6 @@ public class Ball : MonoBehaviour
 
     }
 
-
-    //change to use it player
-/*   private void OnEnable()
-    {
-        player1.onJumpKeyPressed += ballJump;
-        player1.onThrowKey += throwBall;
-        player1.playerCatchball += ballCatch;
-
-        player2.onJumpKeyPressed += ballJump;
-        player2.onThrowKey += throwBall;
-        player2.playerCatchball += ballCatch;
-    }
-
-    private void OnDisable()
-    {
-        player1.onJumpKeyPressed -= ballJump;
-        player1.onThrowKey -= throwBall;
-        player1.playerCatchball -= ballCatch;
-        
-        player2.onJumpKeyPressed -= ballJump;
-        player2.onThrowKey -= throwBall;
-        player2.playerCatchball -= ballCatch;
-
-
-    }*/
-
     public void ballCatch()
     {
         ballCathed = true;
@@ -135,7 +89,7 @@ public class Ball : MonoBehaviour
 
     public void ballJump()
     {
-        Debug.Log("Inside ball Jump");
+        //Debug.Log("Inside ball Jump");
 
         playerJumping = true;
 
@@ -146,30 +100,21 @@ public class Ball : MonoBehaviour
 
     }
 
-    private bool controlThrowingDirection()
+    private void OnCollisionEnter(Collision collision)
     {
-        Vector3 playerDirection = transform.forward;
-        Vector3 targetDirection = (target.position - transform.position).normalized;
-
-        float dotProduct = Vector3.Dot(playerDirection, targetDirection);
-
-        if (dotProduct > 0)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("ground")) // Adjust the tag as needed
         {
-            isFacingTarget = true;
-        }
-        else
-        {
-            isFacingTarget = false;
-        }
+            // Apply some bounce force when colliding with the ground
+            Vector3 bounceForce = Vector3.up * BounceForce;
 
-        return isFacingTarget;
+            rb.AddForce(bounceForce, ForceMode.Impulse);
+
+        }
     }
 
     private void setAnimation(string animationName, bool animationState)
     {
         animator.SetBool(animationName, animationState);
     }
-
-
 
 }

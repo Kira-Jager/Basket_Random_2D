@@ -7,19 +7,8 @@ public class Player : MonoBehaviour
 {
     public float speed = 5f;
     public float jumpForce = 5f;
-
-    public bool isJumping = false;
-    public bool isMoving = false;
-    public bool ballCathed = false;
-
-    private Ball ballComponent = null;
-
     public Transform target;
 
-    private InputController controller;
-
-    private Vector3 newPosition = Vector3.zero;
-    private Animator animator;
 
     public delegate void OnJumpKeyAction();
     public event OnJumpKeyAction onJumpKeyPressed;
@@ -33,7 +22,16 @@ public class Player : MonoBehaviour
     public delegate void onePlayerThrowBall();
     public static event OnBallCatched onePlayerThrow;
 
-    Rigidbody rb;
+    private bool isJumping = false;
+    private bool ballCathed = false;
+
+    private Ball ballComponent = null;
+
+    private InputController controller;
+
+    private Animator animator;
+
+    private Rigidbody rb;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -64,6 +62,8 @@ public class Player : MonoBehaviour
         controller.onKeyRelease += stopRunning;
         controller.onThrow += playerThrowBall;
 
+        //inate Event
+        onePlayerThrow += actionOnDoublePlayer;
     }
 
     private void OnDisable()
@@ -73,13 +73,41 @@ public class Player : MonoBehaviour
         controller.onKeyRelease -= stopRunning;
         controller.onThrow -= playerThrowBall;
 
+        //inate Event
+        onePlayerThrow -= actionOnDoublePlayer;
 
     }
 
+    private void actionOnDoublePlayer()
+    {
+        ballCathed = false;
+        Debug.Log("DOuble player action");
+    }
+
+    private bool controlThrowingDirection()
+    {
+        Vector3 playerDirection = transform.forward;
+        Vector3 targetDirection = (target.position - transform.position).normalized;
+
+        bool isFacingTarget = false;
+
+        float dotProduct = Vector3.Dot(playerDirection, targetDirection);
+
+        if (dotProduct > 0)
+        {
+            isFacingTarget = true;
+        }
+        else
+        {
+            isFacingTarget = false;
+        }
+
+        return isFacingTarget;
+    }
+
+
     private void playerThrowBall()
     {
-        //Debug.Log(lastCollision.gameObject.name + " in throw ball first part");
-
         if (ballCathed)
         {
             disableBoxCollider();
@@ -89,16 +117,18 @@ public class Player : MonoBehaviour
             onThrowKey?.Invoke(target);
 
             onePlayerThrow?.Invoke();
+
+            if (ballComponent != null && target != null)
+            {
+                //Debug.Log(ballComponent.gameObject.name + " in throw ball");
+                ballComponent.throwBall(target);
+
+                ballComponent = null;
+            }
         }
         ballCathed = false;
 
-        if(ballComponent != null && target != null)
-        {
-            Debug.Log(ballComponent.gameObject.name +" in throw ball");
-            ballComponent.throwBall(target);
-
-            ballComponent = null;
-        }
+        
 
 
     }
@@ -129,7 +159,7 @@ public class Player : MonoBehaviour
 
             if (ballComponent != null)
             {
-                Debug.Log(ballComponent.gameObject.name + " in jump");
+                //Debug.Log(ballComponent.gameObject.name + " in jump");
 
                 ballComponent.ballJump();
             }
@@ -152,15 +182,8 @@ public class Player : MonoBehaviour
         {
             isJumping = false;
         }
-
-
-        //lastcollision variable is not working correctly 
-        if (collision.gameObject.CompareTag("ball") && !ballCathed)
-        {
-            ballComponent = collision.gameObject.GetComponent<Ball>(); // Update lastCollision only if it's a valid ball collision
-            playerGetBall(collision);
-            Debug.Log("collision in enter" + collision.gameObject.name);
-        }
+       
+         playerGetBall(collision);
     }
 
     private void playerGetBall(Collision collision)
@@ -168,9 +191,9 @@ public class Player : MonoBehaviour
         
         if (collision.gameObject.CompareTag("ball") && !ballCathed)
         {
-            ballCathed = true;
+            ballComponent = collision.gameObject.GetComponent<Ball>(); // Update lastCollision only if it's a valid ball collision
 
-            //rb.isKinematic = true;
+            ballCathed = true;
 
             playerCatchball?.Invoke();
 
@@ -178,10 +201,8 @@ public class Player : MonoBehaviour
 
             Debug.Log("Player get ball");
 
-
             //Debug.Log(lastCollision.gameObject.name);
             collision.gameObject.transform.SetParent(transform);
-
 
         }
     }
@@ -193,16 +214,10 @@ public class Player : MonoBehaviour
             setAnimation("drible", false);
         }
 
-     /*   if (collision.gameObject.CompareTag("ball"))
-        {
-            ballCathed = false;
-        }*/
     }
 
     private void move(bool isMovingRight)
     {
-        isMoving = true;
-
         if (!isJumping)
         {
             setAnimation("run", true);
@@ -230,7 +245,6 @@ public class Player : MonoBehaviour
     private void stopRunning()
     {
         //Debug.Log("stopRunning");
-        isMoving = false;
         setAnimation("run", false);
     }
 }
