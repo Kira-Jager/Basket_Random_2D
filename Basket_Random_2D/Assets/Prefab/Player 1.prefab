@@ -993,8 +993,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.7405443, z: 0.20787354}
-  m_Center: {x: -1.2830813e-15, y: 0.37016737, z: 0.40971106}
+  m_Size: {x: 0.24507782, y: 0.7405443, z: 0.21600594}
+  m_Center: {x: 0.13820325, y: 0.37016737, z: 0.23080036}
 --- !u!1 &3073923694202160768
 GameObject:
   m_ObjectHideFlags: 0
@@ -1929,9 +1929,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0.15
   jumpForce: 1500
-  isJumping: 0
-  isMoving: 0
-  ballCathed: 0
   target: {fileID: 0}
 --- !u!114 &5312426231440349345
 MonoBehaviour:
@@ -1946,8 +1943,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpKey: 119
-  RightMoveKey: 100
-  LeftMoveKey: 97
+  rightMoveKey: 0
+  leftMoveKey: 0
 --- !u!1 &5097097443001195582
 GameObject:
   m_ObjectHideFlags: 0

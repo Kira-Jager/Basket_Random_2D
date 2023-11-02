@@ -10,22 +10,27 @@ public class Player : MonoBehaviour
     public Transform target;
 
 
-    public delegate void OnJumpKeyAction();
-    public event OnJumpKeyAction onJumpKeyPressed;
+/*  public delegate void OnJumpKeyAction();
+    public event OnJumpKeyAction onJumpKeyPressed;*/
 
-    public delegate void onJumpReleaseAction(Transform targeted);
-    public event onJumpReleaseAction onThrowKey;
+    /*public delegate void onJumpReleaseAction(Transform targeted);
+    public event onJumpReleaseAction onThrowKey;*/
 
-    public delegate void OnBallCatched();
-    public event OnBallCatched playerCatchball;
+    /*public delegate void OnBallCatched();
+    public event OnBallCatched playerCatchball;*/
     
     public delegate void onePlayerThrowBall();
-    public static event OnBallCatched onePlayerThrow;
+    public static event onePlayerThrowBall onePlayerThrow;
+    
+
 
     private bool isJumping = false;
     private bool ballCathed = false;
+    
+    private float movingDirection = 0;
 
-    private Ball ballComponent = null;
+
+    private GameObject ballComponent = null;
 
     private InputController controller;
 
@@ -36,7 +41,6 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<InputController>();
-
     }
 
     void Start()
@@ -52,6 +56,11 @@ public class Player : MonoBehaviour
         {
             setAnimation("drible", true);
         }
+        if(ballCathed == false)
+        {
+            setAnimation("drible", false);
+
+        }
 
     }
 
@@ -63,7 +72,8 @@ public class Player : MonoBehaviour
         controller.onThrow += playerThrowBall;
 
         //inate Event
-        onePlayerThrow += actionOnDoublePlayer;
+        onePlayerThrow += throwActionOnDoublePlayer;
+
     }
 
     private void OnDisable()
@@ -74,14 +84,32 @@ public class Player : MonoBehaviour
         controller.onThrow -= playerThrowBall;
 
         //inate Event
-        onePlayerThrow -= actionOnDoublePlayer;
+        onePlayerThrow -= throwActionOnDoublePlayer;
 
     }
 
-    private void actionOnDoublePlayer()
+
+    public void anotherPlayerGetBall()
     {
         ballCathed = false;
-        Debug.Log("DOuble player action");
+
+        Debug.Log(" Another Player touch the ball");
+
+
+        // Set ballCathed to false for all other players
+        /* foreach (Player player in FindObjectsOfType<Player>())
+          {
+              if (player != this)
+              {
+                  ballCathed = false;
+                  //this.ballCathed = true;
+              }
+          }*/
+    }
+    private void throwActionOnDoublePlayer()
+    {
+        ballCathed = false;
+        //Debug.Log("DOuble player action");
     }
 
     private bool controlThrowingDirection()
@@ -89,47 +117,46 @@ public class Player : MonoBehaviour
         Vector3 playerDirection = transform.forward;
         Vector3 targetDirection = (target.position - transform.position).normalized;
 
-        bool isFacingTarget = false;
 
         float dotProduct = Vector3.Dot(playerDirection, targetDirection);
 
         if (dotProduct > 0)
         {
-            isFacingTarget = true;
+            return true;
         }
         else
         {
-            isFacingTarget = false;
+            return false;
         }
 
-        return isFacingTarget;
     }
 
 
     private void playerThrowBall()
     {
-        if (ballCathed)
+
+        Debug.Log("Ball catched state in player throw ball" + ballCathed);
+
+        if (ballCathed && controlThrowingDirection())
+        //if ( controlThrowingDirection())
         {
             disableBoxCollider();
 
             Invoke("activateBoxCollider", .1f);
 
-            onThrowKey?.Invoke(target);
+            //onThrowKey?.Invoke(target);
 
             onePlayerThrow?.Invoke();
 
             if (ballComponent != null && target != null)
             {
                 //Debug.Log(ballComponent.gameObject.name + " in throw ball");
-                ballComponent.throwBall(target);
+                ballComponent.GetComponent<Ball>().throwBall(target);
 
                 ballComponent = null;
             }
         }
         ballCathed = false;
-
-        
-
 
     }
 
@@ -152,16 +179,28 @@ public class Player : MonoBehaviour
     {
         if (!isJumping)
         {
+            if (controlThrowingDirection() == false && ballCathed)
+            {
+                Vector3 rotation = transform.rotation.eulerAngles;
+                rotation.y *= -1;
+                movingDirection *= -1;
+                transform.rotation = Quaternion.Euler(rotation);
+            }
 
             isJumping = true;
 
-            onJumpKeyPressed?.Invoke();
+            //onJumpKeyPressed?.Invoke();
 
-            if (ballComponent != null)
+            if (ballComponent != null && ballCathed)
             {
                 //Debug.Log(ballComponent.gameObject.name + " in jump");
 
-                ballComponent.ballJump();
+                Vector3 resetBallPosition = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y + 1f, transform.position.z);
+                
+                ballComponent.GetComponent<Ball>().ballJump();
+
+
+                ballComponent.transform.position = resetBallPosition;
             }
 
             Debug.Log("called in jump");
@@ -170,8 +209,6 @@ public class Player : MonoBehaviour
             //rb.velocity = Vector3.up * jumpForce * Time.deltaTime;
             setAnimation("run", false);
             setAnimation("drible", false);
-
-           
 
         }
     }
@@ -182,29 +219,35 @@ public class Player : MonoBehaviour
         {
             isJumping = false;
         }
-       
-         playerGetBall(collision);
+
+        playerGetBall(collision);
     }
 
     private void playerGetBall(Collision collision)
     {
-        
+        Vector3 resetBallPosition = new Vector3( transform.position.x + .5f * movingDirection, transform.position.y, transform.position.z );
+
         if (collision.gameObject.CompareTag("ball") && !ballCathed)
         {
-            ballComponent = collision.gameObject.GetComponent<Ball>(); // Update lastCollision only if it's a valid ball collision
+            ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
+
+            collision.gameObject.transform.SetParent(transform);
+
+            collision.gameObject.transform.position = resetBallPosition;
 
             ballCathed = true;
 
-            playerCatchball?.Invoke();
+            //playerCatchball?.Invoke();
 
-            ballComponent.ballCatch();
+
+            ballComponent.GetComponent<Ball>().ballCatch(this);
 
             Debug.Log("Player get ball");
 
             //Debug.Log(lastCollision.gameObject.name);
-            collision.gameObject.transform.SetParent(transform);
 
         }
+
     }
 
     private void OnCollisionExit(Collision collision)
@@ -221,19 +264,21 @@ public class Player : MonoBehaviour
         if (!isJumping)
         {
             setAnimation("run", true);
+
+            //setAnimation("run", true);
+
+            movingDirection = isMovingRight ? 1 : -1;
+
+            Vector3 newPosition = Vector3.right * speed * movingDirection;
+
+            transform.position += newPosition;
+
+            // Flip the character if moving right (true) or left (false)
+            Vector3 rotation = transform.rotation.eulerAngles;
+            rotation.y = movingDirection > 0 ? 90 : -90;
+            transform.rotation = Quaternion.Euler(rotation);
         }
-        //setAnimation("run", true);
-
-        float direction = isMovingRight ? 1 : -1;
-
-        Vector3 newPosition = Vector3.right * speed * direction ;
-
-        transform.position += newPosition;
-
-        // Flip the character if moving right (true) or left (false)
-        Vector3 rotation = transform.rotation.eulerAngles;
-        rotation.y = direction > 0 ? 90 : -90;
-        transform.rotation = Quaternion.Euler(rotation);
+        
 
     }
 

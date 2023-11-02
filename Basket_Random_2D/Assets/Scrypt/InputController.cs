@@ -17,8 +17,8 @@ public class InputController : MonoBehaviour
     public event OnThrowAction onThrow;
 
     public KeyCode jumpKey;
-    public KeyCode RightMoveKey;
-    public KeyCode LeftMoveKey;
+    public KeyCode rightMoveKey;
+    public KeyCode leftMoveKey;
 
     // Update is called once per frame
     void Update()
@@ -33,15 +33,15 @@ public class InputController : MonoBehaviour
             onThrow?.Invoke();
         }
 
-        if (Input.GetKey(RightMoveKey) || Input.GetKey(LeftMoveKey))
+        if (Input.GetKey(rightMoveKey) || Input.GetKey(leftMoveKey))
         {
-            bool isMovingRight = Input.GetKey(RightMoveKey);
+            bool isMovingRight = Input.GetKey(rightMoveKey);
             onMove?.Invoke(isMovingRight);
 
             //Debug.Log("Key Move pressed");
         }
 
-        if (Input.GetKeyUp(RightMoveKey) || Input.GetKeyUp(LeftMoveKey))
+        if (Input.GetKeyUp(rightMoveKey) || Input.GetKeyUp(leftMoveKey))
         {
             onKeyRelease?.Invoke();
         }

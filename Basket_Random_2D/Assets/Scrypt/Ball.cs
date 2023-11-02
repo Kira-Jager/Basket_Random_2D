@@ -5,9 +5,6 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-    // Start is called before the first frame update
-
-
     private bool ballCathed = false;
     private bool playerJumping = false;
 
@@ -18,6 +15,9 @@ public class Ball : MonoBehaviour
 
     public float throwingForce = 10f;
     public float BounceForce = 1f;
+
+    private Player currentPlayer = null;
+    private Player previousPlayer = null;
 
     void Start()
     {
@@ -58,9 +58,13 @@ public class Ball : MonoBehaviour
         rb.velocity = direction.normalized * initialVelocity;
 
         // Enable the animator to allow dribbling
-        animator.enabled = true;
+        Invoke("enableAnimator",.2f);
     }
 
+    private void enableAnimator()
+    {
+        animator.enabled = true;
+    }
 
     public void throwBall(Transform targeted)
     {
@@ -81,10 +85,16 @@ public class Ball : MonoBehaviour
 
     }
 
-    public void ballCatch()
+    public void ballCatch(Player player)
     {
         ballCathed = true;
         rb.isKinematic = true;
+
+        currentPlayer = player;
+        if(previousPlayer == null)
+        {
+            previousPlayer = currentPlayer;
+        }
     }
 
     public void ballJump()
@@ -110,6 +120,23 @@ public class Ball : MonoBehaviour
             rb.AddForce(bounceForce, ForceMode.Impulse);
 
         }
+
+        if(currentPlayer != null)
+        {
+            if (collision.gameObject.CompareTag("Player") ){
+                Debug.Log(" One player cath me; inside ball");
+
+                if (previousPlayer != currentPlayer)
+                {
+                    previousPlayer.anotherPlayerGetBall();
+                    Debug.Log("It is another player");
+
+                    previousPlayer = currentPlayer;
+                }
+            }
+
+        }
+         
     }
 
     private void setAnimation(string animationName, bool animationState)
