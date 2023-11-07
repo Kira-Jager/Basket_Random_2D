@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class InputController : MonoBehaviour
 {
-    public delegate void OnKeyPressedAction();
-    public event OnKeyPressedAction onJump;
+    public delegate void OnJumpKeyPressedAction();
+    public event OnJumpKeyPressedAction onJump;
 
-    public delegate void OnKeyRelease();
-    public  event OnKeyRelease onKeyRelease;
+    public delegate void OnMoveKeyReleaseAction();
+    public  event OnMoveKeyReleaseAction OnMoveKeyRelease;
 
     public delegate void OnMoveAction(bool isMovingRight);
     public  event OnMoveAction onMove;
@@ -43,7 +43,7 @@ public class InputController : MonoBehaviour
 
         if (Input.GetKeyUp(rightMoveKey) || Input.GetKeyUp(leftMoveKey))
         {
-            onKeyRelease?.Invoke();
+            OnMoveKeyRelease?.Invoke();
         }
 
     }
