@@ -14,11 +14,8 @@ public class Ball : MonoBehaviour
     private Rigidbody rb;
     private SphereCollider sphereCollider;
 
-
+    private GameManager manager;
     //public float throwingForce = 10f;
-    public float BounceForce = 1f;
-
-    public float _Angle;
 
     private Player currentPlayer = null;
     private Player previousPlayer = null;
@@ -29,6 +26,7 @@ public class Ball : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         sphereCollider = GetComponent<SphereCollider>();
 
+        manager = FindObjectOfType<GameManager>();
         //rb.isKinematic = true;
     }
 
@@ -42,66 +40,10 @@ public class Ball : MonoBehaviour
 
     }
 
-    /*    private float QuadraticEquation(float a, float b, float c, float sign)
-        {
-            return (-b + sign * Mathf.Sqrt(b * b - 4 * a * c)) / (2 * a);
-
-        }
-
-        private void CalculatePathWithHeight(Vector3 targetPos, Vector3 initialPos, float h, out float v0, out float angle, out float time)
-        {
-            Vector3 relativeTargetPos = targetPos - initialPos;
-            float xt = relativeTargetPos.x;
-            float yt = relativeTargetPos.y;
-            float g = -Physics.gravity.y;
-
-            float b = Mathf.Sqrt(2 * g * h);
-            float a = (-0.5f * g);
-            float c = -yt;
-
-            float tplus = QuadraticEquation(a, b, c, 1);
-            float tmin = QuadraticEquation(a, b, c, -1);
-            time = tplus > tmin ? tplus : tmin;
-
-            angle = Mathf.Atan(b * time / xt);
-            v0 = b / Mathf.Sin(angle);
-        }
-
-        private void throwBallProjectile()
-        {
-            rb.isKinematic = false;
-
-            Vector3 initialPosition = transform.position;
-
-            transform.SetParent(null);
-            float height = initialPosition.y + initialPosition.magnitude / 2f;
-
-            float v0;
-            float time;
-            float angle;
-
-            CalculatePathWithHeight(target.position, initialPosition, height, out v0, out angle, out time);
-
-            StartCoroutine(projectileMotion(v0, angle, time, initialPosition));
-        }
-
-
-        private IEnumerator projectileMotion(float v0, float angle, float time, Vector3 initialPosition)
-        {
-            while (time < 100)
-            {
-                float x = initialPosition.x + v0 * time * Mathf.Cos(angle);
-                float y = initialPosition.y + v0 * time * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(time, 2);
-
-                transform.position = new Vector3(x, y, 0);
-                time += Time.deltaTime;
-                yield return null;
-            }
-        }*/
-
     private void throwBallProjectile()
     {
-        sphereCollider.enabled = true;
+        //sphereCollider.enabled = true;
+        sphereCollider.isTrigger = false;
         rb.isKinematic = false;
 
         // Unparent the ball
@@ -119,19 +61,18 @@ public class Ball : MonoBehaviour
         float R = direction.magnitude; // distance to the target
         float initialVelocity = Mathf.Sqrt((R * g) / Mathf.Abs(Mathf.Sin(2 * angle)));
 
-
         float initialVelocityX = initialVelocity * Mathf.Cos(angle);
         float initialVelocityY = initialVelocity * Mathf.Sin(angle);
 
-        Debug.Log("Angle: " + angle);
+       /* Debug.Log("Angle: " + angle);
         Debug.Log("R: " + R);
         Debug.Log("g: " + g);
-        Debug.Log("Sin(2*angle): " + Mathf.Sin(2 * angle));
+        Debug.Log("Sin(2*angle): " + Mathf.Sin(2 * angle));*/
 
         rb.AddForce(new Vector3(initialVelocityX, initialVelocityY, 0), ForceMode.VelocityChange);
         
         // Enable the animator to allow dribbling
-        Invoke("enableAnimator", .5f);
+        Invoke("enableAnimator", .7f);
     }
 
     private void enableAnimator()
@@ -143,24 +84,23 @@ public class Ball : MonoBehaviour
     {
             target = targeted;
 
-            setAnimation("drible", false);
-
             ballCathed = false;
             rb.velocity = Vector3.zero;
 
             throwBallProjectile();
 
-
         playerJumping = false;
-        Debug.Log("ball throw");
+        //Debug.Log("ball throw");
 
     }
 
+    //public void ballCatch()
     public void ballCatch(Player player)
     {
         ballCathed = true;
         rb.isKinematic = true;
-        sphereCollider.enabled = false;
+        sphereCollider.isTrigger = true;
+        //sphereCollider.enabled = false;
 
         currentPlayer = player;
         if (previousPlayer == null)
@@ -177,40 +117,43 @@ public class Ball : MonoBehaviour
 
         if (ballCathed)
         {
+            setAnimation("drible", false);
+
             animator.enabled = false;
         }
 
     }
 
-    private void OnCollisionEnter(Collision collision)
+/*    private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("ground")) // Adjust the tag as needed
         {
             // Apply some bounce force when colliding with the ground
-            Vector3 bounceForce = Vector3.up * BounceForce;
+            Vector3 bounceForce = Vector3.up * manager.BounceForce;
 
             rb.AddForce(bounceForce, ForceMode.Impulse);
 
         }
 
-        if (currentPlayer != null)
+    }*/
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (currentPlayer != null && other.gameObject.layer == LayerMask.NameToLayer("player"))
         {
-            if (collision.gameObject.CompareTag("Player"))
+            Debug.Log("Previous player name " + previousPlayer.gameObject.name);
+            Debug.Log("Current player name " + currentPlayer.gameObject.name);
+            if (previousPlayer != currentPlayer)
             {
-                Debug.Log(" One player cath me; inside ball");
+                Debug.Log("It is another player");
+                previousPlayer.anotherPlayerGetBall();
 
-                if (previousPlayer != currentPlayer)
-                {
-                    previousPlayer.anotherPlayerGetBall();
-                    Debug.Log("It is another player");
-
-                    previousPlayer = currentPlayer;
-                }
+                previousPlayer = currentPlayer;
             }
-
         }
-
     }
+
 
     private void setAnimation(string animationName, bool animationState)
     {

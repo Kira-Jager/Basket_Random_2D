@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public float speed = 5f;
-    public float jumpForce = 5f;
     public Transform target;
-    
+
+    private float speed = 5f;
+    private float jumpForce = 5f;
+
     public delegate void onePlayerThrowBall();
     public static event onePlayerThrowBall onePlayerThrow;
     
@@ -19,8 +20,13 @@ public class Player : MonoBehaviour
     private bool ballCathed = false;
     
     private float movingDirection = 0;
+    private float distance = 0;
+    private float distanceValue = 3f;
+    private float minValue = 5f;
+    private float maxValue = 9f;
 
     private GameObject ballComponent = null;
+    private GameManager gameManager = null;
 
     private InputController controller;
 
@@ -43,6 +49,20 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        gameManager = FindObjectOfType<GameManager>();
+        Initialized();
+
+        InvokeRepeating("calculateTargetHeight", 0f, 1.5f);
+    }
+
+    private void Initialized()
+    {
+        speed = gameManager.speed;
+        jumpForce = gameManager.jumpForce;
+
+        distanceValue = gameManager.distanceValue;
+        minValue = gameManager.minValue;
+        maxValue = gameManager.maxValue;
     }
 
     // Update is called once per frame
@@ -52,15 +72,32 @@ public class Player : MonoBehaviour
         {
             setAnimation("drible", true);
         }
-        if(ballCathed == false)
+        if (ballCathed == false)
         {
             setAnimation("drible", false);
-
         }
+
+        //calculateTargetHeight();
 
     }
 
-    private void OnEnable()
+    private void calculateTargetHeight()
+    {
+        distance = Mathf.Abs(transform.position.x - target.position.x);
+
+        if (distance <= distanceValue)
+        {
+            float targetMinPositionY = minValue;//target.position.y  ;
+            target.position = new Vector3(target.position.x, targetMinPositionY, target.position.z);
+        }
+        else if (distance >= distanceValue)
+        {
+            float targetMaxPositionY = maxValue; // target.position.y ;
+            target.position = new Vector3(target.position.x, targetMaxPositionY, target.position.z);
+        }
+    }
+
+        private void OnEnable()
     {
         controller.onJump += jump;
         controller.onMove += move;
@@ -94,7 +131,7 @@ public class Player : MonoBehaviour
     {
         ballCathed = false;
 
-        Debug.Log(" Another Player touch the ball");
+        Debug.Log(transform.gameObject.name +" Another Player touch the ball");
 
     }
     private void throwActionOnDoublePlayer()
@@ -126,14 +163,14 @@ public class Player : MonoBehaviour
     public void playerThrowBall()
     {
 
-        Debug.Log("Ball catched state in player throw ball" + ballCathed);
+        //.Log("Ball catched state in player throw ball" + ballCathed);
 
         if (ballCathed && controlThrowingDirection())
         //if ( controlThrowingDirection())
         {
             disableBoxCollider();
 
-            Invoke("activateBoxCollider", .1f);
+            Invoke("activateBoxCollider", .2f);
 
             //onThrowKey?.Invoke(target);
 
@@ -194,7 +231,7 @@ public class Player : MonoBehaviour
                 ballComponent.transform.position = resetBallPosition;
             }
 
-            Debug.Log("called in jump");
+            //Debug.Log("called in jump");
             rb.AddForce(Vector3.up * jumpForce  , ForceMode.Impulse);
 
             //rb.velocity = Vector3.up * jumpForce * Time.deltaTime;
@@ -218,7 +255,8 @@ public class Player : MonoBehaviour
     {
         Vector3 resetBallPosition = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y, transform.position.z);
 
-        if (collision.gameObject.CompareTag("ball") && !ballCathed)
+        //if (collision.gameObject.CompareTag("ball") && !ballCathed)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed)
         {
             ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
 
@@ -232,8 +270,11 @@ public class Player : MonoBehaviour
 
 
             ballComponent.GetComponent<Ball>().ballCatch(this);
+            //ballComponent.GetComponent<Ball>().ballCatch();
+            //ballComponent.gameObject.transform.GetChild(0).GetComponent<SwitchBallParent>().switchParent(this);
+            //ballComponent.GetComponentInChildren<SwitchBallParent>().switchParent(this);
 
-            Debug.Log("Player get ball");
+            //Debug.Log("Player get ball");
 
             //Debug.Log(lastCollision.gameObject.name);
 
