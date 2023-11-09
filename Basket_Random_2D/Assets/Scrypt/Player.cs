@@ -7,8 +7,8 @@ public class Player : MonoBehaviour
 {
     public Transform target;
 
-    private float speed = 5f;
-    private float jumpForce = 5f;
+    //private float speed = 5f;
+    //private float jumpForce = 5f;
 
     public delegate void onePlayerThrowBall();
     public static event onePlayerThrowBall onePlayerThrow;
@@ -20,10 +20,10 @@ public class Player : MonoBehaviour
     private bool ballCathed = false;
     
     private float movingDirection = 0;
-    private float distance = 0;
-    private float distanceValue = 3f;
+    //private float distance = 0;
+/*    private float distanceValue = 3f;
     private float minValue = 5f;
-    private float maxValue = 9f;
+    private float maxValue = 9f;*/
 
     private GameObject ballComponent = null;
     private GameManager gameManager = null;
@@ -50,12 +50,12 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         gameManager = FindObjectOfType<GameManager>();
-        Initialized();
+        //Initialized();
 
         InvokeRepeating("calculateTargetHeight", 0f, 1.5f);
     }
 
-    private void Initialized()
+ /*   private void Initialized()
     {
         speed = gameManager.speed;
         jumpForce = gameManager.jumpForce;
@@ -63,7 +63,7 @@ public class Player : MonoBehaviour
         distanceValue = gameManager.distanceValue;
         minValue = gameManager.minValue;
         maxValue = gameManager.maxValue;
-    }
+    }*/
 
     // Update is called once per frame
     void Update()
@@ -83,16 +83,17 @@ public class Player : MonoBehaviour
 
     private void calculateTargetHeight()
     {
-        distance = Mathf.Abs(transform.position.x - target.position.x);
+        gameManager.distance = Mathf.Abs(transform.position.x - target.position.x);
 
-        if (distance <= distanceValue)
+        if (gameManager.distance <= gameManager.distanceValue)
         {
-            float targetMinPositionY = minValue;//target.position.y  ;
+            float targetMinPositionY = gameManager.minValue; //minValue;//target.position.y  ;
             target.position = new Vector3(target.position.x, targetMinPositionY, target.position.z);
         }
-        else if (distance >= distanceValue)
+        //else if (distance >= distanceValue)
+        else if (gameManager.distance >= gameManager.distanceValue)
         {
-            float targetMaxPositionY = maxValue; // target.position.y ;
+            float targetMaxPositionY = gameManager.maxValue;//maxValue; // target.position.y ;
             target.position = new Vector3(target.position.x, targetMaxPositionY, target.position.z);
         }
     }
@@ -190,13 +191,15 @@ public class Player : MonoBehaviour
 
     private void disableBoxCollider()
     {
-        BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+        //BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+        BoxCollider boxCollider = GetComponent<BoxCollider>();
 
         boxCollider.enabled = false;
     }
     private void activateBoxCollider()
     {
-        BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+        //BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+        BoxCollider boxCollider = GetComponent<BoxCollider>();
 
         boxCollider.enabled = true;
     }
@@ -232,7 +235,7 @@ public class Player : MonoBehaviour
             }
 
             //Debug.Log("called in jump");
-            rb.AddForce(Vector3.up * jumpForce  , ForceMode.Impulse);
+            rb.AddForce(Vector3.up * gameManager.jumpForce  , ForceMode.Impulse);
 
             //rb.velocity = Vector3.up * jumpForce * Time.deltaTime;
             setAnimation("run", false);
@@ -268,8 +271,8 @@ public class Player : MonoBehaviour
 
             //playerCatchball?.Invoke();
 
-
             ballComponent.GetComponent<Ball>().ballCatch(this);
+
             //ballComponent.GetComponent<Ball>().ballCatch();
             //ballComponent.gameObject.transform.GetChild(0).GetComponent<SwitchBallParent>().switchParent(this);
             //ballComponent.GetComponentInChildren<SwitchBallParent>().switchParent(this);
@@ -282,6 +285,18 @@ public class Player : MonoBehaviour
 
     }
 
+ /*   private void OnTriggerEnter(Collider other)
+    {
+        BoxCollider childCollider = transform.GetChild(0).GetComponent<BoxCollider>();
+        if (other.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed )
+        {
+            ballComponent = other.gameObject; // Update lastCollision only if it's a valid ball collision
+
+            Debug.Log("triger on player child");
+            ballComponent.GetComponent<Ball>().ballCatch(this);
+
+        }
+    }*/
 
     private void OnCollisionExit(Collision collision)
     {
@@ -300,14 +315,17 @@ public class Player : MonoBehaviour
 
             movingDirection = isMovingRight ? 1 : -1;
 
+            movingDirection = isMovingRight ? 1 : -1;
+
+            Vector3 newPosition = Vector3.right * gameManager.speed * movingDirection;
+
+            transform.position += newPosition;
             // Calculate the movement direction
-            Vector3 moveDirection = Vector3.right * movingDirection;
+            //Vector3 moveDirection = Vector3.right * movingDirection;
 
             // Apply a force to move the character
 
-            //rb.AddForce( moveDirection * speed, ForceMode.Force);
-
-            rb.MovePosition(rb.position + moveDirection * speed * Time.deltaTime);
+            //rb.MovePosition(rb.position + moveDirection * gameManager.speed * Time.deltaTime);
 
             Vector3 rotation = transform.rotation.eulerAngles;
             rotation.y = movingDirection > 0 ? 90 : -90;

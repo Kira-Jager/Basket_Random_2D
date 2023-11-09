@@ -43,7 +43,7 @@ public class Ball : MonoBehaviour
     private void throwBallProjectile()
     {
         //sphereCollider.enabled = true;
-        sphereCollider.isTrigger = false;
+        //sphereCollider.isTrigger = false;
         rb.isKinematic = false;
 
         // Unparent the ball
@@ -99,7 +99,7 @@ public class Ball : MonoBehaviour
     {
         ballCathed = true;
         rb.isKinematic = true;
-        sphereCollider.isTrigger = true;
+        //sphereCollider.isTrigger = true;
         //sphereCollider.enabled = false;
 
         currentPlayer = player;
@@ -124,23 +124,9 @@ public class Ball : MonoBehaviour
 
     }
 
-/*    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("ground")) // Adjust the tag as needed
-        {
-            // Apply some bounce force when colliding with the ground
-            Vector3 bounceForce = Vector3.up * manager.BounceForce;
-
-            rb.AddForce(bounceForce, ForceMode.Impulse);
-
-        }
-
-    }*/
-
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (currentPlayer != null && other.gameObject.layer == LayerMask.NameToLayer("player"))
+        if (currentPlayer != null && collision.gameObject.layer == LayerMask.NameToLayer("player"))
         {
             Debug.Log("Previous player name " + previousPlayer.gameObject.name);
             Debug.Log("Current player name " + currentPlayer.gameObject.name);
@@ -154,6 +140,21 @@ public class Ball : MonoBehaviour
         }
     }
 
+/*    private void OnTriggerEnter(Collider other)
+    {
+        if (currentPlayer != null && other.gameObject.layer == LayerMask.NameToLayer("player"))
+        {
+            Debug.Log("Previous player name " + previousPlayer.gameObject.name);
+            Debug.Log("Current player name " + currentPlayer.gameObject.name);
+            if (previousPlayer != currentPlayer)
+            {
+                Debug.Log("It is another player");
+                previousPlayer.anotherPlayerGetBall();
+
+                previousPlayer = currentPlayer;
+            }
+        }
+    }*/
 
     private void setAnimation(string animationName, bool animationState)
     {
