@@ -12,7 +12,7 @@ public class Ball : MonoBehaviour
     private Transform target;
 
     private Rigidbody rb;
-    private SphereCollider sphereCollider;
+    //private SphereCollider sphereCollider;
 
     private GameManager manager;
     //public float throwingForce = 10f;
@@ -24,10 +24,6 @@ public class Ball : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-        sphereCollider = GetComponent<SphereCollider>();
-
-        manager = FindObjectOfType<GameManager>();
-        //rb.isKinematic = true;
     }
 
     // Update is called once per frame
@@ -42,8 +38,6 @@ public class Ball : MonoBehaviour
 
     private void throwBallProjectile()
     {
-        //sphereCollider.enabled = true;
-        //sphereCollider.isTrigger = false;
         rb.isKinematic = false;
 
         // Unparent the ball
@@ -64,15 +58,10 @@ public class Ball : MonoBehaviour
         float initialVelocityX = initialVelocity * Mathf.Cos(angle);
         float initialVelocityY = initialVelocity * Mathf.Sin(angle);
 
-       /* Debug.Log("Angle: " + angle);
-        Debug.Log("R: " + R);
-        Debug.Log("g: " + g);
-        Debug.Log("Sin(2*angle): " + Mathf.Sin(2 * angle));*/
-
         rb.AddForce(new Vector3(initialVelocityX, initialVelocityY, 0), ForceMode.VelocityChange);
-        
+
         // Enable the animator to allow dribbling
-        Invoke("enableAnimator", .7f);
+        //Invoke("enableAnimator", .5f);
     }
 
     private void enableAnimator()
@@ -82,25 +71,23 @@ public class Ball : MonoBehaviour
 
     public void throwBall(Transform targeted)
     {
-            target = targeted;
+        target = targeted;
 
-            ballCathed = false;
-            rb.velocity = Vector3.zero;
+        ballCathed = false;
+        rb.velocity = Vector3.zero;
 
-            throwBallProjectile();
+        throwBallProjectile();
 
         playerJumping = false;
         //Debug.Log("ball throw");
-
     }
 
-    //public void ballCatch()
     public void ballCatch(Player player)
     {
+        animator.enabled = true;
         ballCathed = true;
         rb.isKinematic = true;
-        //sphereCollider.isTrigger = true;
-        //sphereCollider.enabled = false;
+
 
         currentPlayer = player;
         if (previousPlayer == null)
@@ -128,33 +115,17 @@ public class Ball : MonoBehaviour
     {
         if (currentPlayer != null && collision.gameObject.layer == LayerMask.NameToLayer("player"))
         {
-            Debug.Log("Previous player name " + previousPlayer.gameObject.name);
-            Debug.Log("Current player name " + currentPlayer.gameObject.name);
+            //Debug.Log("Previous player name " + previousPlayer.gameObject.name);
+            //Debug.Log("Current player name " + currentPlayer.gameObject.name);
             if (previousPlayer != currentPlayer)
             {
-                Debug.Log("It is another player");
+                //Debug.Log("It is another player");
                 previousPlayer.anotherPlayerGetBall();
 
                 previousPlayer = currentPlayer;
             }
         }
     }
-
-/*    private void OnTriggerEnter(Collider other)
-    {
-        if (currentPlayer != null && other.gameObject.layer == LayerMask.NameToLayer("player"))
-        {
-            Debug.Log("Previous player name " + previousPlayer.gameObject.name);
-            Debug.Log("Current player name " + currentPlayer.gameObject.name);
-            if (previousPlayer != currentPlayer)
-            {
-                Debug.Log("It is another player");
-                previousPlayer.anotherPlayerGetBall();
-
-                previousPlayer = currentPlayer;
-            }
-        }
-    }*/
 
     private void setAnimation(string animationName, bool animationState)
     {

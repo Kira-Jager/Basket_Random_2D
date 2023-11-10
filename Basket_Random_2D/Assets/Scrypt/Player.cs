@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
     
     public delegate void playerGetBallAction();
     public static event playerGetBallAction playerCatchball;
+    public GameObject playerHand = null;
 
     private bool isJumping = false;
     private bool ballCathed = false;
@@ -52,7 +53,7 @@ public class Player : MonoBehaviour
         gameManager = FindObjectOfType<GameManager>();
         //Initialized();
 
-        InvokeRepeating("calculateTargetHeight", 0f, 1.5f);
+        InvokeRepeating("calculateTargetHeight", 0f,.8f);
     }
 
  /*   private void Initialized()
@@ -237,7 +238,6 @@ public class Player : MonoBehaviour
             //Debug.Log("called in jump");
             rb.AddForce(Vector3.up * gameManager.jumpForce  , ForceMode.Impulse);
 
-            //rb.velocity = Vector3.up * jumpForce * Time.deltaTime;
             setAnimation("run", false);
             setAnimation("drible", false);
 
@@ -256,16 +256,15 @@ public class Player : MonoBehaviour
 
     private void playerGetBall(Collision collision)
     {
-        Vector3 resetBallPosition = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y, transform.position.z);
 
         //if (collision.gameObject.CompareTag("ball") && !ballCathed)
         if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed)
         {
             ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
 
-            collision.gameObject.transform.SetParent(transform);
+            collision.gameObject.transform.SetParent(playerHand.transform);
 
-            collision.gameObject.transform.position = resetBallPosition;
+            resetBallPosition(collision);
 
             ballCathed = true;
 
@@ -273,31 +272,16 @@ public class Player : MonoBehaviour
 
             ballComponent.GetComponent<Ball>().ballCatch(this);
 
-            //ballComponent.GetComponent<Ball>().ballCatch();
-            //ballComponent.gameObject.transform.GetChild(0).GetComponent<SwitchBallParent>().switchParent(this);
-            //ballComponent.GetComponentInChildren<SwitchBallParent>().switchParent(this);
-
-            //Debug.Log("Player get ball");
-
-            //Debug.Log(lastCollision.gameObject.name);
-
         }
 
     }
 
- /*   private void OnTriggerEnter(Collider other)
+    private void resetBallPosition(Collision collision)
     {
-        BoxCollider childCollider = transform.GetChild(0).GetComponent<BoxCollider>();
-        if (other.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed )
-        {
-            ballComponent = other.gameObject; // Update lastCollision only if it's a valid ball collision
+        collision.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        collision.gameObject.transform.position = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y, transform.position.z);
 
-            Debug.Log("triger on player child");
-            ballComponent.GetComponent<Ball>().ballCatch(this);
-
-        }
-    }*/
-
+    }
     private void OnCollisionExit(Collision collision)
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("ground"))
@@ -315,23 +299,61 @@ public class Player : MonoBehaviour
 
             movingDirection = isMovingRight ? 1 : -1;
 
+            // Calculate the new position
+            Vector3 newPosition = Vector3.right * gameManager.speed * movingDirection;
+            Vector3 nextPosition = transform.position + newPosition;
+
+            // Check if the next position is within the limit box
+            if (IsWithinLimit(nextPosition))
+            {
+                rb.velocity = Vector3.zero;
+                transform.position = nextPosition;
+
+                Vector3 rotation = transform.rotation.eulerAngles;
+                rotation.y = movingDirection > 0 ? 90 : -90;
+                transform.rotation = Quaternion.Euler(rotation);
+            }
+        }
+    }
+
+    private bool IsWithinLimit(Vector3 position)
+    {
+        foreach (GameObject limitBound in gameManager.limitBounds)
+        {
+            float distanceThreshold = 0.5f; 
+            float distance =Mathf.Abs(position.x -limitBound.transform.position.x);
+
+            //Debug.Log("distance " + distance);
+
+            if (distance < distanceThreshold)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /*public void move(bool isMovingRight)
+    {
+        if (!isJumping)
+        {
+            setAnimation("run", true);
+
             movingDirection = isMovingRight ? 1 : -1;
 
+            movingDirection = isMovingRight ? 1 : -1;
+
+            // Calculate the new position
             Vector3 newPosition = Vector3.right * gameManager.speed * movingDirection;
-
+            rb.velocity = Vector3.zero;
             transform.position += newPosition;
-            // Calculate the movement direction
-            //Vector3 moveDirection = Vector3.right * movingDirection;
-
-            // Apply a force to move the character
-
-            //rb.MovePosition(rb.position + moveDirection * gameManager.speed * Time.deltaTime);
 
             Vector3 rotation = transform.rotation.eulerAngles;
             rotation.y = movingDirection > 0 ? 90 : -90;
             transform.rotation = Quaternion.Euler(rotation);
         }
-    }
+    }*/
 
 
     private void setAnimation(string animationName, bool animationState)
