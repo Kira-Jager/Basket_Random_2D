@@ -129,4 +129,11 @@ public class Ball : MonoBehaviour
         animator.SetBool(animationName, animationState);
     }
 
+    public void ResetBallPosition(Vector3 resetValue)
+    {
+        rb.velocity = Vector3.zero;
+
+        transform.position = resetValue;
+    }
+
 }

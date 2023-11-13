@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     private bool isJumping = false;
     private bool ballCathed = false;
     private bool playerScore = false;
+    private bool endGame = false;
     
     private float movingDirection = 0;
     //private float distance = 0;
@@ -94,6 +95,8 @@ public class Player : MonoBehaviour
         controller.onThrow += playerThrowBall;
 
         BasketScore.onePlayerScore += onePlayerScoreEvent;
+
+        GameManager.onEndGame += playeronEndGameEvent;
         //inate Event
         onePlayerThrow += throwActionOnDoublePlayer;
 
@@ -108,12 +111,19 @@ public class Player : MonoBehaviour
 
         BasketScore.onePlayerScore -= onePlayerScoreEvent;
 
+        GameManager.onEndGame -= playeronEndGameEvent;
 
         //inate Event
         onePlayerThrow -= throwActionOnDoublePlayer;
 
     }
 
+    private void playeronEndGameEvent(string winnerName)
+    {
+        ballComponent.GetComponent<Ball>().ResetBallPosition(new Vector3(0, 3, 0));
+        //ballCathed = false;
+        endGame = true;
+    }
 
     public bool getBallCath()
     {
@@ -204,6 +214,7 @@ public class Player : MonoBehaviour
         {
             if (controlThrowingDirection() == false && ballCathed)
             {
+                //turn player to face its target
                 Vector3 rotation = transform.rotation.eulerAngles;
                 rotation.y *= -1;
                 movingDirection *= -1;
@@ -218,13 +229,14 @@ public class Player : MonoBehaviour
             {
                 //Debug.Log(ballComponent.gameObject.name + " in jump");
 
-                Vector3 resetBallPosition = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y + 1f, transform.position.z);
-
                 calculateTargetHeight();
+
+                Vector3 ballResetValue = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y + 1f, transform.position.z);
 
                 ballComponent.GetComponent<Ball>().ballJump();
 
-                ballComponent.transform.position = resetBallPosition;
+                ballComponent.GetComponent<Ball>().ResetBallPosition(ballResetValue);
+
             }
 
             //Debug.Log("called in jump");
@@ -270,9 +282,8 @@ public class Player : MonoBehaviour
 
     private void resetBallPosition(Collision collision)
     {
-        collision.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        collision.gameObject.transform.position = new Vector3(transform.position.x + 0.5f * movingDirection, transform.position.y, transform.position.z);
-
+        Vector3 ballResetValue = new Vector3(transform.position.x + 0.5f * movingDirection, transform.position.y, transform.position.z);
+        collision.gameObject.GetComponent<Ball>().ResetBallPosition(ballResetValue);
     }
     private void OnCollisionExit(Collision collision)
     {
@@ -285,7 +296,7 @@ public class Player : MonoBehaviour
 
     public void move(bool isMovingRight)
     {
-        if (!isJumping && playerScore == false)
+        if (!isJumping && !playerScore && !endGame)
         {
             setAnimation("run", true);
 
@@ -330,29 +341,6 @@ public class Player : MonoBehaviour
         }
         return true;
     }
-
-
-    /*public void move(bool isMovingRight)
-    {
-        if (!isJumping)
-        {
-            setAnimation("run", true);
-
-            movingDirection = isMovingRight ? 1 : -1;
-
-            movingDirection = isMovingRight ? 1 : -1;
-
-            // Calculate the new position
-            Vector3 newPosition = Vector3.right * gameManager.speed * movingDirection;
-            rb.velocity = Vector3.zero;
-            transform.position += newPosition;
-
-            Vector3 rotation = transform.rotation.eulerAngles;
-            rotation.y = movingDirection > 0 ? 90 : -90;
-            transform.rotation = Quaternion.Euler(rotation);
-        }
-    }*/
-
 
     private void setAnimation(string animationName, bool animationState)
     {

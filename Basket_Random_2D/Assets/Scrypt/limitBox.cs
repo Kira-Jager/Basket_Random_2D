@@ -20,7 +20,7 @@ public class limitBox : MonoBehaviour
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("ball"))
         {
-            Debug.Log("ball outside");
+           Debug.Log("ball outside");
            StartCoroutine( ResetBallPosition(other));
         }
     }

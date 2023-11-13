@@ -20,21 +20,17 @@ public class GameManager : MonoBehaviour
 
     public GameObject[] limitBounds = null;
     public GameObject Timer = null;
-    public GameObject startButton = null;
-    
-    public GameObject endPanel = null;
-
-    //to be deleted
-    public GameObject restartButton = null;
 
     private string _timer = null;
+    private bool hasGameEnded = false;
 
-    //public float BounceForce = 1f;
+    public delegate void endGameEvent(String Winner);
+    public static event endGameEvent onEndGame;
 
     // Start is called before the first frame update
     void Start()
     {
-        stopGame();
+        //stopGame();
         _timer = Timer.GetComponent<TextMeshProUGUI>().text;
     }
 
@@ -43,12 +39,7 @@ public class GameManager : MonoBehaviour
     {
         timer();
 
-        if(GameTimer <= 0)
-        {
-            Debug.Log("Game End");
-            stopGame();
 
-        }
     }
 
     private void timer()
@@ -58,24 +49,43 @@ public class GameManager : MonoBehaviour
         _timer = timeSpan.ToString(@"mm\:ss");
 
         Timer.GetComponent<TextMeshProUGUI>().text = _timer;
+
+        if (GameTimer <= 0 && !hasGameEnded)
+        {
+            Debug.Log("Game End");
+            onEndGame?.Invoke(gameWinner());
+            //stopGame();
+
+            // flag to true to indicate that the game has ended
+            hasGameEnded = true;
+        }
     }
 
-    public void startGame()
+   
+
+    private string gameWinner()
     {
-        Time.timeScale = 1;
-        Debug.Log("Game Start");
-        restartButton.active = false;
-    }
-    public void restartGame()
-    {
-        Time.timeScale = 1;
-        Debug.Log("Game Start");
-        restartButton.active = false;
+        BasketScore[] playerScores = FindObjectsOfType<BasketScore>();
+        int i = 0;
+
+        //Debug.Log($"Player Name = {playerScores[i].playerScore.name}" +
+        //  $"\nScore = {playerScores[i].getScore()}");
+        if (playerScores[i].getScore() > playerScores[i + 1].getScore())
+        {
+            //Debug.Log($"Winner is {playerScores[i].playerScore.name} ");
+            return playerScores[i].playerScore.name;
+        }
+        else if (playerScores[i + 1].getScore() > playerScores[i].getScore())
+        {
+            //Debug.Log($"Winner is {playerScores[i + 1].playerScore.name} ");
+            return playerScores[i+1].playerScore.name;
+        }
+        else
+        {
+            //Debug.Log("Draw");
+            return "Draw";
+        }
     }
 
-    public void stopGame()
-    {
-        Time.timeScale = 0;
-    }
 
 }
