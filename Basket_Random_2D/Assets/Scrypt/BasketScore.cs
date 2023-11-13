@@ -7,6 +7,9 @@ public class BasketScore : MonoBehaviour
 {
     private int score;
     public GameObject playerScore;
+
+    public delegate void onePlayerScoreAction(bool state);
+    public static event onePlayerScoreAction onePlayerScore;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,8 +27,13 @@ public class BasketScore : MonoBehaviour
         if (other.gameObject.CompareTag("ball"))
         {
             Debug.Log("Collided with");
+            //Start Event When Score
+            onePlayerScore?.Invoke(true);
             score++;
+
+            //disable collider to avoid multiple scoring
             playerScore.GetComponent<TextMeshProUGUI>().text = score.ToString();
+            this.gameObject.GetComponent<BoxCollider>().enabled = false;
         }
 
         StartCoroutine(ResetBallPosition(other));
@@ -35,8 +43,15 @@ public class BasketScore : MonoBehaviour
     private IEnumerator ResetBallPosition(Collider other)
     {
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
+        //activate collider after scoring
+        this.gameObject.GetComponent<BoxCollider>().enabled = true;
+
         other.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
         other.transform.position = new Vector3(0, 5, 0);
+
+        //Start Event When Score
+        onePlayerScore?.Invoke(false);
+
     }
 }

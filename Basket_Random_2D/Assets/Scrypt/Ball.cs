@@ -12,10 +12,8 @@ public class Ball : MonoBehaviour
     private Transform target;
 
     private Rigidbody rb;
-    //private SphereCollider sphereCollider;
 
     private GameManager manager;
-    //public float throwingForce = 10f;
 
     private Player currentPlayer = null;
     private Player previousPlayer = null;
@@ -29,11 +27,14 @@ public class Ball : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (ballCathed && !playerJumping)
+    }
+
+    private void startBallDrible()
+    {
+        if (ballCathed && playerJumping == false )
         {
             setAnimation("drible", true);
         }
-
     }
 
     private void throwBallProjectile()
@@ -59,15 +60,9 @@ public class Ball : MonoBehaviour
         float initialVelocityY = initialVelocity * Mathf.Sin(angle);
 
         rb.AddForce(new Vector3(initialVelocityX, initialVelocityY, 0), ForceMode.VelocityChange);
-
-        // Enable the animator to allow dribbling
-        //Invoke("enableAnimator", .5f);
     }
 
-    private void enableAnimator()
-    {
-        animator.enabled = true;
-    }
+ 
 
     public void throwBall(Transform targeted)
     {
@@ -94,6 +89,8 @@ public class Ball : MonoBehaviour
         {
             previousPlayer = currentPlayer;
         }
+
+        startBallDrible();
     }
 
     public void ballJump()

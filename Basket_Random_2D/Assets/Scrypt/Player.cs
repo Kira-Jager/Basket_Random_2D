@@ -19,6 +19,7 @@ public class Player : MonoBehaviour
 
     private bool isJumping = false;
     private bool ballCathed = false;
+    private bool playerScore = false;
     
     private float movingDirection = 0;
     //private float distance = 0;
@@ -92,6 +93,7 @@ public class Player : MonoBehaviour
         controller.OnMoveKeyRelease += stopRunning;
         controller.onThrow += playerThrowBall;
 
+        BasketScore.onePlayerScore += onePlayerScoreEvent;
         //inate Event
         onePlayerThrow += throwActionOnDoublePlayer;
 
@@ -103,6 +105,9 @@ public class Player : MonoBehaviour
         controller.onMove -= move;
         controller.OnMoveKeyRelease -= stopRunning;
         controller.onThrow -= playerThrowBall;
+
+        BasketScore.onePlayerScore -= onePlayerScoreEvent;
+
 
         //inate Event
         onePlayerThrow -= throwActionOnDoublePlayer;
@@ -280,7 +285,7 @@ public class Player : MonoBehaviour
 
     public void move(bool isMovingRight)
     {
-        if (!isJumping)
+        if (!isJumping && playerScore == false)
         {
             setAnimation("run", true);
 
@@ -301,6 +306,12 @@ public class Player : MonoBehaviour
                 transform.rotation = Quaternion.Euler(rotation);
             }
         }
+    }
+
+    private void onePlayerScoreEvent(bool state)
+    {
+        //Debug.Log("One Player score");
+        playerScore = state;
     }
 
     private bool IsWithinLimit(Vector3 position)

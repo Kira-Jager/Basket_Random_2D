@@ -20,6 +20,12 @@ public class GameManager : MonoBehaviour
 
     public GameObject[] limitBounds = null;
     public GameObject Timer = null;
+    public GameObject startButton = null;
+    
+    public GameObject endPanel = null;
+
+    //to be deleted
+    public GameObject restartButton = null;
 
     private string _timer = null;
 
@@ -28,16 +34,48 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        stopGame();
         _timer = Timer.GetComponent<TextMeshProUGUI>().text;
     }
 
     // Update is called once per frame
     void Update()
     {
-        GameTimer -= Time.deltaTime; 
-        TimeSpan timeSpan = TimeSpan.FromSeconds(GameTimer);
-        _timer = timeSpan.ToString(@"mm\:ss");
+        timer();
+
+        if(GameTimer <= 0)
+        {
+            Debug.Log("Game End");
+            stopGame();
+
+        }
     }
 
-   
+    private void timer()
+    {
+        GameTimer -= Time.deltaTime;
+        TimeSpan timeSpan = TimeSpan.FromSeconds(GameTimer);
+        _timer = timeSpan.ToString(@"mm\:ss");
+
+        Timer.GetComponent<TextMeshProUGUI>().text = _timer;
+    }
+
+    public void startGame()
+    {
+        Time.timeScale = 1;
+        Debug.Log("Game Start");
+        restartButton.active = false;
+    }
+    public void restartGame()
+    {
+        Time.timeScale = 1;
+        Debug.Log("Game Start");
+        restartButton.active = false;
+    }
+
+    public void stopGame()
+    {
+        Time.timeScale = 0;
+    }
+
 }
