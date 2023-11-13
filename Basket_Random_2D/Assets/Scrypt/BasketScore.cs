@@ -35,7 +35,7 @@ public class BasketScore : MonoBehaviour
     private IEnumerator ResetBallPosition(Collider other)
     {
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
         other.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
         other.transform.position = new Vector3(0, 5, 0);
     }

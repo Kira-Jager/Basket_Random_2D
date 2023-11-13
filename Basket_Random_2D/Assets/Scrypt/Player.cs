@@ -51,20 +51,8 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         gameManager = FindObjectOfType<GameManager>();
-        //Initialized();
 
-        InvokeRepeating("calculateTargetHeight", 0f,.8f);
     }
-
- /*   private void Initialized()
-    {
-        speed = gameManager.speed;
-        jumpForce = gameManager.jumpForce;
-
-        distanceValue = gameManager.distanceValue;
-        minValue = gameManager.minValue;
-        maxValue = gameManager.maxValue;
-    }*/
 
     // Update is called once per frame
     void Update()
@@ -77,8 +65,6 @@ public class Player : MonoBehaviour
         {
             setAnimation("drible", false);
         }
-
-        //calculateTargetHeight();
 
     }
 
@@ -228,9 +214,10 @@ public class Player : MonoBehaviour
                 //Debug.Log(ballComponent.gameObject.name + " in jump");
 
                 Vector3 resetBallPosition = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y + 1f, transform.position.z);
-                
-                ballComponent.GetComponent<Ball>().ballJump();
 
+                calculateTargetHeight();
+
+                ballComponent.GetComponent<Ball>().ballJump();
 
                 ballComponent.transform.position = resetBallPosition;
             }
@@ -279,7 +266,7 @@ public class Player : MonoBehaviour
     private void resetBallPosition(Collision collision)
     {
         collision.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        collision.gameObject.transform.position = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y, transform.position.z);
+        collision.gameObject.transform.position = new Vector3(transform.position.x + 0.5f * movingDirection, transform.position.y, transform.position.z);
 
     }
     private void OnCollisionExit(Collision collision)
