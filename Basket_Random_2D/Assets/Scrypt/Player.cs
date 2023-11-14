@@ -5,28 +5,16 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public Transform target;
-
-    //private float speed = 5f;
-    //private float jumpForce = 5f;
 
     public delegate void onePlayerThrowBall();
     public static event onePlayerThrowBall onePlayerThrow;
-    
+
     public delegate void playerGetBallAction();
     public static event playerGetBallAction playerCatchball;
-    public GameObject playerHand = null;
-
-    private bool isJumping = false;
-    private bool ballCathed = false;
-    private bool playerScore = false;
-    private bool endGame = false;
     
-    private float movingDirection = 0;
-    //private float distance = 0;
-/*    private float distanceValue = 3f;
-    private float minValue = 5f;
-    private float maxValue = 9f;*/
+    public Transform target;
+    public Transform playerHand = null;
+
 
     private GameObject ballComponent = null;
     private GameManager gameManager = null;
@@ -38,11 +26,22 @@ public class Player : MonoBehaviour
     private Animator animator;
 
     private Rigidbody rb;
+    
+    private bool isJumping = false;
+    private bool ballCathed = false;
+    private bool playerScore = false;
+    private bool endGame = false;
+
+    private float movingDirection = 0;
+
+    private Vector3 playerInitialPosition;
+    private Quaternion playerInitialRotation;
+
     // Start is called before the first frame update
     private void Awake()
     {
         controller = GetComponent<InputController>();
-        if(aiController != null)
+        if (aiController != null)
         {
             aiController = GetComponent<AiController>();
         }
@@ -54,20 +53,18 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         gameManager = FindObjectOfType<GameManager>();
 
+        playerInitialPosition = transform.position;
+        playerInitialRotation = transform.rotation;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (ballCathed && !isJumping)
-        {
-            setAnimation("drible", true);
-        }
+        
         if (ballCathed == false)
         {
             setAnimation("drible", false);
         }
-
     }
 
     private void calculateTargetHeight()
@@ -87,7 +84,7 @@ public class Player : MonoBehaviour
         }
     }
 
-        private void OnEnable()
+    private void OnEnable()
     {
         controller.onJump += jump;
         controller.onMove += move;
@@ -134,7 +131,7 @@ public class Player : MonoBehaviour
     {
         ballCathed = false;
 
-        Debug.Log(transform.gameObject.name +" Another Player touch the ball");
+        Debug.Log(transform.gameObject.name + " Another Player touch the ball");
 
     }
     private void throwActionOnDoublePlayer()
@@ -147,7 +144,6 @@ public class Player : MonoBehaviour
     {
         Vector3 playerDirection = transform.forward;
         Vector3 targetDirection = (target.position - transform.position).normalized;
-
 
         float dotProduct = Vector3.Dot(playerDirection, targetDirection);
 
@@ -166,7 +162,7 @@ public class Player : MonoBehaviour
     public void playerThrowBall()
     {
 
-        //.Log("Ball catched state in player throw ball" + ballCathed);
+        //Debug.Log("Ball catched state in player throw ball" + ballCathed);
 
         if (ballCathed && controlThrowingDirection())
         //if ( controlThrowingDirection())
@@ -174,8 +170,6 @@ public class Player : MonoBehaviour
             disableBoxCollider();
 
             Invoke("activateBoxCollider", .2f);
-
-            //onThrowKey?.Invoke(target);
 
             onePlayerThrow?.Invoke();
 
@@ -206,8 +200,6 @@ public class Player : MonoBehaviour
         boxCollider.enabled = true;
     }
 
-
-
     public void jump()
     {
         if (!isJumping)
@@ -231,16 +223,12 @@ public class Player : MonoBehaviour
 
                 calculateTargetHeight();
 
-                Vector3 ballResetValue = new Vector3(transform.position.x + .5f * movingDirection, transform.position.y + 1f, transform.position.z);
-
                 ballComponent.GetComponent<Ball>().ballJump();
-
-                ballComponent.GetComponent<Ball>().ResetBallPosition(ballResetValue);
 
             }
 
             //Debug.Log("called in jump");
-            rb.AddForce(Vector3.up * gameManager.jumpForce  , ForceMode.Impulse);
+            rb.AddForce(Vector3.up * gameManager.jumpForce, ForceMode.Impulse);
 
             setAnimation("run", false);
             setAnimation("drible", false);
@@ -266,25 +254,25 @@ public class Player : MonoBehaviour
         {
             ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
 
-            collision.gameObject.transform.SetParent(playerHand.transform);
 
-            resetBallPosition(collision);
+            Debug.Log("is jumping " + gameObject.name + isJumping);
 
-            ballCathed = true;
+            if (!isJumping)
+            {
+                ballComponent.GetComponent<Ball>().ballCatch(this);
 
+                ballCathed = true;
+
+                setAnimation("drible", true);
+            }
             //playerCatchball?.Invoke();
-
-            ballComponent.GetComponent<Ball>().ballCatch(this);
 
         }
 
     }
 
-    private void resetBallPosition(Collision collision)
-    {
-        Vector3 ballResetValue = new Vector3(transform.position.x + 0.5f * movingDirection, transform.position.y, transform.position.z);
-        collision.gameObject.GetComponent<Ball>().ResetBallPosition(ballResetValue);
-    }
+
+
     private void OnCollisionExit(Collision collision)
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("ground"))
@@ -323,14 +311,24 @@ public class Player : MonoBehaviour
     {
         //Debug.Log("One Player score");
         playerScore = state;
+
+        resetPlayer();
+        
     }
 
+    private void resetPlayer()
+    {
+        ballCathed = false;
+        transform.position = playerInitialPosition;
+        transform.rotation = playerInitialRotation;
+
+    }
     private bool IsWithinLimit(Vector3 position)
     {
         foreach (GameObject limitBound in gameManager.limitBounds)
         {
-            float distanceThreshold = 0.5f; 
-            float distance =Mathf.Abs(position.x -limitBound.transform.position.x);
+            float distanceThreshold = 0.5f;
+            float distance = Mathf.Abs(position.x - limitBound.transform.position.x);
 
             //Debug.Log("distance " + distance);
 

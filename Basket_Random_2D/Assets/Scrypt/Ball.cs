@@ -5,15 +5,10 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-    private bool ballCathed = false;
-    private bool playerJumping = false;
-
     private Animator animator;
     private Transform target;
 
     private Rigidbody rb;
-
-    private GameManager manager;
 
     private Player currentPlayer = null;
     private Player previousPlayer = null;
@@ -22,19 +17,6 @@ public class Ball : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
-    private void startBallDrible()
-    {
-        if (ballCathed && playerJumping == false )
-        {
-            setAnimation("drible", true);
-        }
     }
 
     private void throwBallProjectile()
@@ -62,49 +44,51 @@ public class Ball : MonoBehaviour
         rb.AddForce(new Vector3(initialVelocityX, initialVelocityY, 0), ForceMode.VelocityChange);
     }
 
- 
+
 
     public void throwBall(Transform targeted)
     {
         target = targeted;
 
-        ballCathed = false;
         rb.velocity = Vector3.zero;
 
         throwBallProjectile();
 
-        playerJumping = false;
         //Debug.Log("ball throw");
     }
 
     public void ballCatch(Player player)
     {
         animator.enabled = true;
-        ballCathed = true;
         rb.isKinematic = true;
 
 
         currentPlayer = player;
+
         if (previousPlayer == null)
         {
             previousPlayer = currentPlayer;
         }
 
-        startBallDrible();
+        transform.SetParent(currentPlayer.playerHand);
+
+        ResetBallPosition(currentPlayer.playerHand.position);
+
+        setAnimation("drible", true);
+
     }
 
     public void ballJump()
     {
-        //Debug.Log("Inside ball Jump");
 
-        playerJumping = true;
+        Vector3 updateHandPosition = new Vector3(currentPlayer.playerHand.position.x, currentPlayer.playerHand.position.y + 1f, currentPlayer.playerHand.position.z);
 
-        if (ballCathed)
-        {
-            setAnimation("drible", false);
+        ResetBallPosition(updateHandPosition);
 
-            animator.enabled = false;
-        }
+        setAnimation("drible", false);
+
+        animator.enabled = false;
+
 
     }
 
@@ -116,11 +100,11 @@ public class Ball : MonoBehaviour
             //Debug.Log("Current player name " + currentPlayer.gameObject.name);
             if (previousPlayer != currentPlayer)
             {
-                //Debug.Log("It is another player");
                 previousPlayer.anotherPlayerGetBall();
 
                 previousPlayer = currentPlayer;
             }
+
         }
     }
 

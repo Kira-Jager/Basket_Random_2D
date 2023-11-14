@@ -10,11 +10,14 @@ public class UiManager : MonoBehaviour
 
     public GameObject startButton = null;
 
+    public GameObject blackBg = null;
+
     // Start is called before the first frame update
     void Start()
     {
         stopGame();
         startButton.SetActive(true);
+        blackBg.SetActive(false);
     }
 
     // Update is called once per frame
@@ -40,13 +43,29 @@ public class UiManager : MonoBehaviour
     private void OnEnable()
     {
         GameManager.onEndGame += endGamePanel;
+        BasketScore.onePlayerScore += actionOnScore;
     }
 
     private void OnDisable()
     {
         GameManager.onEndGame -= endGamePanel;
+        BasketScore.onePlayerScore -= actionOnScore;
     }
 
+    private void actionOnScore(bool boolean)
+    {
+        if (boolean)
+        {
+            blackBg.SetActive(true);
+            ScorePanel.SetActive(false );
+            Invoke("disableBlackScrenn", .1f);
+        }
+    }
+    private void disableBlackScrenn()
+    {
+        blackBg.SetActive(false);
+        ScorePanel.SetActive(true);
+    }
     private void endGamePanel( string winnerName)
     {
         endPanel.SetActive(true);
