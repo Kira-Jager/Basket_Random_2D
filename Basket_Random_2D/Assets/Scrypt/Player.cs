@@ -52,6 +52,7 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         gameManager = FindObjectOfType<GameManager>();
+        ballComponent = FindObjectOfType<Ball>().gameObject;
 
         playerInitialPosition = transform.position;
         playerInitialRotation = transform.rotation;
@@ -204,7 +205,7 @@ public class Player : MonoBehaviour
     {
         if (!isJumping)
         {
-            if (controlThrowingDirection() == false && ballCathed)
+            if (controlThrowingDirection() == false)
             {
                 //turn player to face its target
                 Vector3 rotation = transform.rotation.eulerAngles;
@@ -312,7 +313,22 @@ public class Player : MonoBehaviour
         //Debug.Log("One Player score");
         playerScore = state;
 
-        resetPlayer();
+        if (state)
+        {
+            Player Scorer = ballComponent.GetComponent<Ball>().getPlayerWhoScore();
+
+            if (Scorer.gameObject.transform == this.gameObject.transform)
+            {
+                setAnimation("playerScore", true);
+                //Debug.Log(" Scorer anim start by " + this.gameObject.name);
+            }
+            if(Scorer.gameObject.transform != this.gameObject.transform)
+            {
+                setAnimation("loser", true);
+                //Debug.Log(" loser anim start by " + this.gameObject.name);
+            }
+            Invoke("resetPlayer", 2f);
+        }
         
     }
 
@@ -321,6 +337,9 @@ public class Player : MonoBehaviour
         ballCathed = false;
         transform.position = playerInitialPosition;
         transform.rotation = playerInitialRotation;
+
+        setAnimation("playerScore", false);
+        setAnimation("loser", false);
 
     }
     private bool IsWithinLimit(Vector3 position)

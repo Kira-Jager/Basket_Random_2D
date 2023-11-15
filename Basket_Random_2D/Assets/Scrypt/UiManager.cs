@@ -54,7 +54,7 @@ public class UiManager : MonoBehaviour
 
     private void actionOnScore(bool boolean)
     {
-        if (boolean)
+        if (!boolean)
         {
             blackBg.SetActive(true);
             ScorePanel.SetActive(false );

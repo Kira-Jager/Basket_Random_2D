@@ -120,4 +120,9 @@ public class Ball : MonoBehaviour
         transform.position = resetValue;
     }
 
+    public Player getPlayerWhoScore()
+    {
+        return currentPlayer;
+    }
+
 }

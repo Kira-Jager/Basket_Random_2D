@@ -45,10 +45,8 @@ public class BasketScore : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-
         Vector3 resetValue = new Vector3(0, 5, 0);
         other.gameObject.GetComponent<Ball>().ResetBallPosition(resetValue);
-
 
         //activate collider after scoring
         this.gameObject.GetComponent<BoxCollider>().enabled = true;
