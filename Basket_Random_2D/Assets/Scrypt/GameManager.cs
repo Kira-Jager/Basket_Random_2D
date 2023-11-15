@@ -38,8 +38,6 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         timer();
-
-
     }
 
     private void timer()

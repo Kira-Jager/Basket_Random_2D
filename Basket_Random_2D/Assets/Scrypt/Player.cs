@@ -61,7 +61,6 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
         if (ballCathed == false)
         {
             setAnimation("drible", false);
@@ -118,7 +117,9 @@ public class Player : MonoBehaviour
 
     private void playeronEndGameEvent(string winnerName)
     {
-        ballComponent.GetComponent<Ball>().ResetBallPosition(new Vector3(0, 3, 0));
+        ballComponent.GetComponent<Ball>().resetBall();
+        resetPlayer();
+
         //ballCathed = false;
         endGame = true;
     }
@@ -205,6 +206,7 @@ public class Player : MonoBehaviour
     {
         if (!isJumping)
         {
+
             if (controlThrowingDirection() == false)
             {
                 //turn player to face its target
@@ -228,11 +230,14 @@ public class Player : MonoBehaviour
 
             }
 
+            setAnimation("jumping", true);
+
             //Debug.Log("called in jump");
             rb.AddForce(Vector3.up * gameManager.jumpForce, ForceMode.Impulse);
 
             setAnimation("run", false);
             setAnimation("drible", false);
+
 
         }
     }
@@ -242,6 +247,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("ground"))
         {
             isJumping = false;
+            setAnimation("jumping", false);
         }
 
         playerGetBall(collision);
@@ -251,7 +257,7 @@ public class Player : MonoBehaviour
     {
 
         //if (collision.gameObject.CompareTag("ball") && !ballCathed)
-        if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed && !playerScore)
         {
             ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
 
@@ -286,6 +292,7 @@ public class Player : MonoBehaviour
     public void move(bool isMovingRight)
     {
         if (!isJumping && !playerScore && !endGame)
+        //if (!isJumping && !endGame)
         {
             setAnimation("run", true);
 
@@ -310,12 +317,15 @@ public class Player : MonoBehaviour
 
     private void onePlayerScoreEvent(bool state)
     {
-        //Debug.Log("One Player score");
+        Debug.Log("State on Score event" + state);
         playerScore = state;
+
 
         if (state)
         {
             Player Scorer = ballComponent.GetComponent<Ball>().getPlayerWhoScore();
+            
+            //ballComponent.GetComponent<Animator>().enabled = false;
 
             if (Scorer.gameObject.transform == this.gameObject.transform)
             {
@@ -334,13 +344,13 @@ public class Player : MonoBehaviour
 
     private void resetPlayer()
     {
-        ballCathed = false;
         transform.position = playerInitialPosition;
         transform.rotation = playerInitialRotation;
 
         setAnimation("playerScore", false);
         setAnimation("loser", false);
 
+        ballCathed = false;
     }
     private bool IsWithinLimit(Vector3 position)
     {

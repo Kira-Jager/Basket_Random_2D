@@ -38,6 +38,7 @@ public class UiManager : MonoBehaviour
         Time.timeScale = 1;
         Debug.Log("Game Start");
         endPanel.SetActive(false);
+
     }
 
     private void OnEnable()
@@ -58,7 +59,7 @@ public class UiManager : MonoBehaviour
         {
             blackBg.SetActive(true);
             ScorePanel.SetActive(false );
-            Invoke("disableBlackScrenn", .1f);
+            Invoke("disableBlackScrenn", .25f);
         }
     }
     private void disableBlackScrenn()

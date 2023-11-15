@@ -36,22 +36,21 @@ public class BasketScore : MonoBehaviour
             this.gameObject.GetComponent<BoxCollider>().enabled = false;
         }
 
-        StartCoroutine(ResetBallPosition(other));
+        StartCoroutine(scoreEvent(other));
 
     }
 
-    private IEnumerator ResetBallPosition(Collider other)
+    private IEnumerator scoreEvent(Collider other)
     {
 
         yield return new WaitForSeconds(2f);
 
-        Vector3 resetValue = new Vector3(0, 5, 0);
-        other.gameObject.GetComponent<Ball>().ResetBallPosition(resetValue);
+        other.gameObject.GetComponent<Ball>().resetBall();
 
         //activate collider after scoring
         this.gameObject.GetComponent<BoxCollider>().enabled = true;
 
-       // Event When Score
+        // Event When Score
         onePlayerScore?.Invoke(false);
 
     }

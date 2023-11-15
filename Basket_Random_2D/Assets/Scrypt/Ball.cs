@@ -12,6 +12,7 @@ public class Ball : MonoBehaviour
 
     private Player currentPlayer = null;
     private Player previousPlayer = null;
+    private Player lanceur = null;
 
     void Start()
     {
@@ -52,6 +53,8 @@ public class Ball : MonoBehaviour
 
         rb.velocity = Vector3.zero;
 
+        lanceur = currentPlayer;
+
         throwBallProjectile();
 
         //Debug.Log("ball throw");
@@ -61,7 +64,6 @@ public class Ball : MonoBehaviour
     {
         animator.enabled = true;
         rb.isKinematic = true;
-
 
         currentPlayer = player;
 
@@ -81,7 +83,7 @@ public class Ball : MonoBehaviour
     public void ballJump()
     {
 
-        Vector3 updateHandPosition = new Vector3(currentPlayer.playerHand.position.x, currentPlayer.playerHand.position.y + 1f, currentPlayer.playerHand.position.z);
+        Vector3 updateHandPosition = new Vector3(currentPlayer.playerHand.position.x +.2f, currentPlayer.playerHand.position.y + 1f, currentPlayer.playerHand.position.z);
 
         ResetBallPosition(updateHandPosition);
 
@@ -108,7 +110,7 @@ public class Ball : MonoBehaviour
         }
     }
 
-    private void setAnimation(string animationName, bool animationState)
+    public void setAnimation(string animationName, bool animationState)
     {
         animator.SetBool(animationName, animationState);
     }
@@ -120,9 +122,18 @@ public class Ball : MonoBehaviour
         transform.position = resetValue;
     }
 
+    public void resetBall()
+    {
+        setAnimation("drible", false);
+        ResetBallPosition(new Vector3(0,3,0));
+        transform.SetParent(null);
+        rb.isKinematic = false;
+    }
+
     public Player getPlayerWhoScore()
     {
-        return currentPlayer;
+        //the player who strow the ball is the scorer if case of score
+        return lanceur;
     }
 
 }
