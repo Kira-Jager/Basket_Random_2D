@@ -7,14 +7,23 @@ public class AiController : MonoBehaviour
     // Start is called before the first frame update
 
     public GameObject ballObject;
+    public GameObject AiBuffer;
 
     private Player player;
 
     private Ball ball = null;
+
+    private float BufferRelativeMinX = 0f;
+    private float BufferRelativeMaxX = 0f;
+
     void Start()
     {
         player = GetComponent<Player>();
         ball = ballObject.GetComponent<Ball>();
+        MeshRenderer meshRenderer = AiBuffer.GetComponent<MeshRenderer>();
+
+         BufferRelativeMinX = meshRenderer.bounds.min.x - player.transform.position.x;
+         BufferRelativeMaxX = meshRenderer.bounds.max.x - player.transform.position.x;
     }
 
     // Update is called once per frame
@@ -24,9 +33,10 @@ public class AiController : MonoBehaviour
         {
             if (!player.getBallCath() && ball.getBallOnGround() == true)
             {
-                Invoke("findBall",.5f);
+                Invoke("findBall",.8f);
                 //ballCatch = player.getBallCath();
             }
+
             else
             {
                 player.stopRunning();
@@ -34,13 +44,24 @@ public class AiController : MonoBehaviour
 
             if(player.getBallCath())
             {
-                Invoke("throwBall",.5f);
+                Invoke("throwBall",.6f);
             }
 
-
-
+           /* if(player.distancePlayerTarget <= threshold)
+            {
+                movePlayerAround();
+            }*/
         }
 
+    }
+
+
+    private void movePlayerAround()
+    {
+        if (player.getBallCath())
+        {
+
+        }
     }
 
     private void OnEnable()

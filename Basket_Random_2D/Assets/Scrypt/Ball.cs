@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 
+
 public class Ball : MonoBehaviour
 {
     private Animator animator;
@@ -130,6 +131,8 @@ public class Ball : MonoBehaviour
 
     public bool getBallOnGround()
     {
+        Debug.Log("Ball on ground = " + ballOnGround);
+
         return ballOnGround;
     }
 
@@ -144,6 +147,8 @@ public class Ball : MonoBehaviour
 
         transform.position = resetValue;
         transform.rotation = Quaternion.Euler(Vector3.zero);
+        ballOnGround = false;
+
     }
 
     public void resetBall()
@@ -152,7 +157,6 @@ public class Ball : MonoBehaviour
         ResetBallPosition(new Vector3(0,3,0));
         transform.SetParent(null);
         rb.isKinematic = false;
-        ballOnGround = false;
     }
 
     public Player getPlayerWhoScore()
