@@ -69,17 +69,17 @@ public class Player : MonoBehaviour
 
     private void calculateTargetHeight()
     {
-        gameManager.distance = Mathf.Abs(transform.position.x - target.position.x);
+        gameManager.distancePlayerTarget = Mathf.Abs(transform.position.x - target.position.x);
 
-        if (gameManager.distance <= gameManager.distanceValue)
+        if (gameManager.distancePlayerTarget <= gameManager.distanceThreshold)
         {
-            float targetMinPositionY = gameManager.minValue; //minValue;//target.position.y  ;
+            float targetMinPositionY = gameManager.targetMinHeightValue; //minValue;//target.position.y  ;
             target.position = new Vector3(target.position.x, targetMinPositionY, target.position.z);
         }
         //else if (distance >= distanceValue)
-        else if (gameManager.distance >= gameManager.distanceValue)
+        else if (gameManager.distancePlayerTarget >= gameManager.distanceThreshold)
         {
-            float targetMaxPositionY = gameManager.maxValue;//maxValue; // target.position.y ;
+            float targetMaxPositionY = gameManager.targetMaxHeightValue;//maxValue; // target.position.y ;
             target.position = new Vector3(target.position.x, targetMaxPositionY, target.position.z);
         }
     }
@@ -133,7 +133,8 @@ public class Player : MonoBehaviour
     {
         ballCathed = false;
 
-        Debug.Log(transform.gameObject.name + " Another Player touch the ball");
+        isJumping = false;
+        //Debug.Log(transform.gameObject.name + " Another Player touch the ball");
 
     }
     private void throwActionOnDoublePlayer()
@@ -206,7 +207,6 @@ public class Player : MonoBehaviour
     {
         if (!isJumping)
         {
-
             if (controlThrowingDirection() == false)
             {
                 //turn player to face its target
@@ -257,28 +257,26 @@ public class Player : MonoBehaviour
     {
 
         //if (collision.gameObject.CompareTag("ball") && !ballCathed)
-        if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed && !playerScore)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed && !playerScore && !isJumping)
         {
             ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
 
 
-            Debug.Log("is jumping " + gameObject.name + isJumping);
+            //Debug.Log("is jumping " + gameObject.name + isJumping);
 
-            if (!isJumping)
-            {
+           /* if (!isJumping)
+            {*/
                 ballComponent.GetComponent<Ball>().ballCatch(this);
 
                 ballCathed = true;
 
                 setAnimation("drible", true);
-            }
-            //playerCatchball?.Invoke();
+            //}
+            playerCatchball?.Invoke();
 
         }
 
     }
-
-
 
     private void OnCollisionExit(Collision collision)
     {
@@ -317,7 +315,7 @@ public class Player : MonoBehaviour
 
     private void onePlayerScoreEvent(bool state)
     {
-        Debug.Log("State on Score event" + state);
+        //Debug.Log("State on Score event" + state);
         playerScore = state;
 
 

@@ -26,7 +26,7 @@ public class BasketScore : MonoBehaviour
     {
         if (other.gameObject.CompareTag("ball"))
         {
-            Debug.Log("Collided with");
+            //Debug.Log("Collided with");
             // Event When Score
             onePlayerScore?.Invoke(true);
             score++;

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,6 +15,8 @@ public class Ball : MonoBehaviour
     private Player currentPlayer = null;
     private Player previousPlayer = null;
     private Player lanceur = null;
+
+
 
     void Start()
     {
@@ -43,6 +47,7 @@ public class Ball : MonoBehaviour
         float initialVelocityY = initialVelocity * Mathf.Sin(angle);
 
         rb.AddForce(new Vector3(initialVelocityX, initialVelocityY, 0), ForceMode.VelocityChange);
+
     }
 
 
@@ -120,6 +125,7 @@ public class Ball : MonoBehaviour
         rb.velocity = Vector3.zero;
 
         transform.position = resetValue;
+        transform.rotation = Quaternion.Euler(Vector3.zero);
     }
 
     public void resetBall()

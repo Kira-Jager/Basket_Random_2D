@@ -140,6 +140,7 @@ GameObject:
   - component: {fileID: 6808503758935912578}
   - component: {fileID: 8761855679290508360}
   - component: {fileID: 7951607553310304369}
+  - component: {fileID: 1880482901630458896}
   m_Layer: 0
   m_Name: basket
   m_TagString: Untagged
@@ -233,6 +234,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0, y: 0, z: 0.5316435}
   m_Center: {x: -0.308, y: 7.901439e-14, z: 1.3458216}
+--- !u!64 &1880482901630458896
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7104605576892917149}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 0
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -8813416960597551163, guid: 3d15006bddabbfc4caf65ad90a66a0aa, type: 3}
 --- !u!1 &8176656609966697892
 GameObject:
   m_ObjectHideFlags: 0
