@@ -16,6 +16,8 @@ public class Ball : MonoBehaviour
     private Player previousPlayer = null;
     private Player lanceur = null;
 
+    private bool ballOnGround = false;
+
 
 
     void Start()
@@ -59,6 +61,8 @@ public class Ball : MonoBehaviour
         rb.velocity = Vector3.zero;
 
         lanceur = currentPlayer;
+
+        ballOnGround = false;
 
         throwBallProjectile();
 
@@ -110,9 +114,23 @@ public class Ball : MonoBehaviour
                 previousPlayer.anotherPlayerGetBall();
 
                 previousPlayer = currentPlayer;
+
+                ballOnGround = false;
             }
 
         }
+
+        if (collision.gameObject.layer == LayerMask.NameToLayer("ground"))
+        {
+            // this is for the AI to know that ball is on ground 
+            ballOnGround = true;
+        }
+    }
+
+
+    public bool getBallOnGround()
+    {
+        return ballOnGround;
     }
 
     public void setAnimation(string animationName, bool animationState)
@@ -134,6 +152,7 @@ public class Ball : MonoBehaviour
         ResetBallPosition(new Vector3(0,3,0));
         transform.SetParent(null);
         rb.isKinematic = false;
+        ballOnGround = false;
     }
 
     public Player getPlayerWhoScore()

@@ -69,8 +69,7 @@ public class Player : MonoBehaviour
 
     private void calculateTargetHeight()
     {
-        gameManager.distancePlayerTarget = Mathf.Abs(transform.position.x - target.position.x);
-
+        gameManager.distancePlayerTarget = distancePlayerTarget();
         if (gameManager.distancePlayerTarget <= gameManager.distanceThreshold)
         {
             float targetMinPositionY = gameManager.targetMinHeightValue; //minValue;//target.position.y  ;
@@ -82,6 +81,12 @@ public class Player : MonoBehaviour
             float targetMaxPositionY = gameManager.targetMaxHeightValue;//maxValue; // target.position.y ;
             target.position = new Vector3(target.position.x, targetMaxPositionY, target.position.z);
         }
+    }
+
+    public float distancePlayerTarget()
+    {
+        return Mathf.Abs(transform.position.x - target.position.x);
+
     }
 
     private void OnEnable()
@@ -143,7 +148,7 @@ public class Player : MonoBehaviour
         //Debug.Log("DOuble player action");
     }
 
-    private bool controlThrowingDirection()
+    public bool controlThrowingDirection()
     {
         Vector3 playerDirection = transform.forward;
         Vector3 targetDirection = (target.position - transform.position).normalized;
@@ -261,17 +266,15 @@ public class Player : MonoBehaviour
         {
             ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
 
-
             //Debug.Log("is jumping " + gameObject.name + isJumping);
 
-           /* if (!isJumping)
-            {*/
-                ballComponent.GetComponent<Ball>().ballCatch(this);
+            ballComponent.GetComponent<Ball>().ballCatch(this);
 
-                ballCathed = true;
+            ballCathed = true;
 
-                setAnimation("drible", true);
-            //}
+            setAnimation("drible", true);
+
+            //this is for the ai
             playerCatchball?.Invoke();
 
         }
@@ -290,7 +293,6 @@ public class Player : MonoBehaviour
     public void move(bool isMovingRight)
     {
         if (!isJumping && !playerScore && !endGame)
-        //if (!isJumping && !endGame)
         {
             setAnimation("run", true);
 

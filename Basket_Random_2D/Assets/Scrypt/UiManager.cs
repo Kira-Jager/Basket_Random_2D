@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UiManager : MonoBehaviour
 {
@@ -38,7 +39,7 @@ public class UiManager : MonoBehaviour
         Time.timeScale = 1;
         Debug.Log("Game Start");
         endPanel.SetActive(false);
-
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void OnEnable()

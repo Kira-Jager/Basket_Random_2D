@@ -10,70 +10,105 @@ public class AiController : MonoBehaviour
 
     private Player player;
 
-    private bool ballCatch;
+    private Ball ball = null;
     void Start()
     {
         player = GetComponent<Player>();
-        Ball ball = ballObject.GetComponent<Ball>();
-        ballCatch = player.getBallCath();
+        ball = ballObject.GetComponent<Ball>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!ballCatch)
+        if (Time.timeScale > 0)
         {
-            findBall();
-            ballCatch = player.getBallCath();
+            if (!player.getBallCath() && ball.getBallOnGround() == true)
+            {
+                Invoke("findBall",.5f);
+                //ballCatch = player.getBallCath();
+            }
+            else
+            {
+                player.stopRunning();
+            }
+
+            if(player.getBallCath())
+            {
+                Invoke("throwBall",.5f);
+            }
+
+
+
         }
+
     }
 
     private void OnEnable()
     {
         Player.playerCatchball += onePlayerHaveBall;
+        Player.onePlayerThrow += actionOnthrow;
     }
 
     private void OnDisable()
     {
         Player.playerCatchball -= onePlayerHaveBall;
+        Player.onePlayerThrow -= actionOnthrow;
     }
 
 
 
     private void onePlayerHaveBall()
     {
-        ballCatch = player.getBallCath();
-
-        
+        //ballCatch = player.getBallCath();
     }
+    
+    private void actionOnthrow()
+    {
+        //ballCatch = player.getBallCath();
+    }
+
+    private void throwBall()
+    {
+        player.jump();
+        player.playerThrowBall();
+
+    }
+
 
     private bool findBallDirection()
     {
+        float dotProduct = 0;
         Vector3 ballPosition = ballObject.transform.position;
-        Vector3 targetDirection = (ballPosition - transform.position).normalized;
+        Vector3 playerDirection = transform.forward;
 
-        float dotProduct = Vector3.Dot(ballPosition, targetDirection);
+        Vector3 targetDirection = (transform.position - ballPosition).normalized;
 
-        if (dotProduct > 0)
+        if(player.controlThrowingDirection() == true)
         {
-            Debug.Log("AI going right");
-            return true;
-
+            dotProduct = Vector3.Dot(playerDirection , targetDirection);
         }
         else
         {
-            Debug.Log("AI going left");
-
-            return false;
+            dotProduct = Vector3.Dot(- playerDirection , targetDirection);
         }
+
+
+        if (dotProduct > 0)
+        {
+            /*Debug.Log("AI going right");
+            Debug.Log("dot product = " + 1);*/
+            return true;
+
+        }
+
+        /*Debug.Log("AI going left");
+        Debug.Log("dot product = " + -1);*/
+        return false;
     }
 
     private void findBall()
     {
-        if(player.getBallCath() == false)
-        {
-            player.move(findBallDirection());
-        }
+        player.move(findBallDirection());
     }
 
 }
