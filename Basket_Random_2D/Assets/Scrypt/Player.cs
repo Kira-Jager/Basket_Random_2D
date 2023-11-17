@@ -9,8 +9,8 @@ public class Player : MonoBehaviour
     public delegate void onePlayerThrowBall();
     public static event onePlayerThrowBall onePlayerThrow;
 
-    public delegate void playerGetBallAction();
-    public static event playerGetBallAction playerCatchball;
+    //public delegate void playerGetBallAction();
+    //public static event playerGetBallAction playerCatchball;
     
     public Transform target;
     public Transform playerHand = null;
@@ -21,8 +21,6 @@ public class Player : MonoBehaviour
 
     private InputController controller;
 
-    private AiController aiController;
-
     private Animator animator;
 
     private Rigidbody rb;
@@ -31,6 +29,7 @@ public class Player : MonoBehaviour
     private bool ballCathed = false;
     private bool playerScore = false;
     private bool endGame = false;
+    private bool makePlayerReturn = false;
 
     private float movingDirection = 0;
 
@@ -41,10 +40,6 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<InputController>();
-        if (aiController != null)
-        {
-            aiController = GetComponent<AiController>();
-        }
     }
 
     void Start()
@@ -65,6 +60,14 @@ public class Player : MonoBehaviour
         {
             setAnimation("drible", false);
         }
+
+        /*if (makePlayerReturn)
+        {
+
+                move(!controlThrowingDirection());
+            
+        }*/
+
     }
 
     private void calculateTargetHeight()
@@ -138,7 +141,7 @@ public class Player : MonoBehaviour
     {
         ballCathed = false;
 
-        isJumping = false;
+        //isJumping = false;
         //Debug.Log(transform.gameObject.name + " Another Player touch the ball");
 
     }
@@ -148,7 +151,7 @@ public class Player : MonoBehaviour
         //Debug.Log("DOuble player action");
     }
 
-    public bool controlThrowingDirection()
+    public bool getThrowingDirection()
     {
         Vector3 playerDirection = transform.forward;
         Vector3 targetDirection = (target.position - transform.position).normalized;
@@ -172,7 +175,14 @@ public class Player : MonoBehaviour
 
         //Debug.Log("Ball catched state in player throw ball" + ballCathed);
 
-        if (ballCathed && controlThrowingDirection())
+
+       /* if( distancePlayerTarget() <= 2f)
+        {
+            makePlayerReturn = true;
+        }
+
+         else */
+         if (ballCathed && getThrowingDirection())
         //if ( controlThrowingDirection())
         {
             disableBoxCollider();
@@ -210,9 +220,9 @@ public class Player : MonoBehaviour
 
     public void jump()
     {
-        if (!isJumping)
+        if (!isJumping && !playerScore)
         {
-            if (controlThrowingDirection() == false)
+            if (getThrowingDirection() == false)
             {
                 //turn player to face its target
                 Vector3 rotation = transform.rotation.eulerAngles;
@@ -274,8 +284,8 @@ public class Player : MonoBehaviour
 
             setAnimation("drible", true);
 
-            //this is for the ai
-            playerCatchball?.Invoke();
+           //this is for the ai
+            //playerCatchball?.Invoke();
 
         }
 
@@ -294,7 +304,6 @@ public class Player : MonoBehaviour
     {
         if (!isJumping && !playerScore && !endGame)
         {
-            setAnimation("run", true);
 
             movingDirection = isMovingRight ? 1 : -1;
 
@@ -305,6 +314,7 @@ public class Player : MonoBehaviour
             // Check if the next position is within the limit box
             if (IsWithinLimit(nextPosition))
             {
+                setAnimation("run", true);
                 rb.velocity = Vector3.zero;
                 transform.position = nextPosition;
 
@@ -332,8 +342,8 @@ public class Player : MonoBehaviour
                 setAnimation("playerScore", true);
                 //Debug.Log(" Scorer anim start by " + this.gameObject.name);
             }
-            if(Scorer.gameObject.transform != this.gameObject.transform)
-            {
+            //if(Scorer.gameObject.transform != this.gameObject.transform)
+            else{
                 setAnimation("loser", true);
                 //Debug.Log(" loser anim start by " + this.gameObject.name);
             }
@@ -356,7 +366,7 @@ public class Player : MonoBehaviour
     {
         foreach (GameObject limitBound in gameManager.limitBounds)
         {
-            float distanceThreshold = 0.5f;
+            float distanceThreshold = 1f;
             float distance = Mathf.Abs(position.x - limitBound.transform.position.x);
 
             //Debug.Log("distance " + distance);

@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public float GameTimer = 180f;
     public float speed = 5f;
     public float jumpForce = 5f;
+    public float aiTimer = 3f;
 
     public float distancePlayerTarget = 3f;
     public float distanceThreshold = 5f;

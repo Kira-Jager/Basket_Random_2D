@@ -112,11 +112,11 @@ public class Ball : MonoBehaviour
             //Debug.Log("Current player name " + currentPlayer.gameObject.name);
             if (previousPlayer != currentPlayer)
             {
+                ballOnGround = false;
                 previousPlayer.anotherPlayerGetBall();
 
                 previousPlayer = currentPlayer;
 
-                ballOnGround = false;
             }
 
         }
@@ -131,9 +131,15 @@ public class Ball : MonoBehaviour
 
     public bool getBallOnGround()
     {
-        Debug.Log("Ball on ground = " + ballOnGround);
+        //Debug.Log("Ball on ground = " + ballOnGround);
 
         return ballOnGround;
+    }
+    public void setBallOnGround()
+    {
+        //Debug.Log("Ball on ground = " + ballOnGround);
+
+        ballOnGround = true;
     }
 
     public void setAnimation(string animationName, bool animationState)
@@ -164,5 +170,19 @@ public class Ball : MonoBehaviour
         //the player who strow the ball is the scorer if case of score
         return lanceur;
     }
+
+    public Player getCurrentPlayer()
+    {
+        //this is to help the AI controller to defend
+        return currentPlayer;
+    }
+    
+    public Player getPreviousPlayer()
+    {
+        //this is to help the AI controller to defend
+        return previousPlayer;
+    }
+
+
 
 }
