@@ -78,23 +78,56 @@ public class AiController : MonoBehaviour
 
     private float distancePlayerPlayer()
     {
-        float distance = Mathf.Abs(ball.getCurrentPlayer().transform.position.x - ball.getPreviousPlayer().transform.position.x);
+        Player currentPlayer = ball.getCurrentPlayer();
+        Player otherPlayer = null;
 
-        return distance;
+        foreach (Player player in FindObjectsOfType<Player>())
+        {
+            if (player != currentPlayer)
+            {
+                otherPlayer = player;
+            }
+        }
+
+        if (otherPlayer != null && currentPlayer != null && otherPlayer != currentPlayer)
+        {
+            float distance = Mathf.Abs(currentPlayer.transform.position.x - otherPlayer.transform.position.x);
+            Debug.Log("Distance P - P = : " + distance);
+            return distance;
+        }
+
+        // Return a distance greater than 1 for findBalltoCatch
+        return 1.1f;
     }
+
 
     private void findToCatchBall()
     {
+
         if (ball.getCurrentPlayer() != null && ball.getCurrentPlayer() != player)
         {
             timer -= Time.deltaTime;
-
-            if (timer < 0)
+            if (distancePlayerPlayer() >= 1f)
             {
-                findBall();
+                if (timer < 0)
+                {
+                    findBall();
+                }
             }
 
+            if (!playerFacePlayer() && distancePlayerPlayer() <= 1f)
+            {
+                //this is in case of the player is behind the opponent then it have to catch the ball
+                timer -= Time.deltaTime;
+
+                if (timer < 0)
+                {
+                    findBall();
+                }
+            }
         }
+
+
     }
 
     private void movePlayerAround()
@@ -134,7 +167,7 @@ public class AiController : MonoBehaviour
     {
 
         // action to defend ball
-        if (ball.getCurrentPlayer() != null && ball.getCurrentPlayer() != player)
+        if (ball.getCurrentPlayer() != null && ball.getCurrentPlayer() != player && playerFacePlayer())
         {
             player.jump();
         }
@@ -157,7 +190,7 @@ public class AiController : MonoBehaviour
         Vector3 targetDirection = (transform.position - ballPosition).normalized;
 
 
-        
+
         if (player.getThrowingDirection() == true)
         {
             dotProduct = Vector3.Dot(playerDirection, targetDirection);
@@ -177,6 +210,34 @@ public class AiController : MonoBehaviour
         {
             ballDirection = false;
         }
+    }
+
+    private bool playerFacePlayer()
+    {
+        float dotProduct = 0;
+
+        Vector3 myDirection = transform.forward;
+        Vector3 opponentPosition = ball.getCurrentPlayer().gameObject.transform.position;
+
+
+        Vector3 targetDirection = (transform.position - opponentPosition).normalized;
+
+        if (player.getThrowingDirection() == true)
+        {
+            dotProduct = Vector3.Dot(-myDirection, targetDirection);
+        }
+        else
+        {
+            dotProduct = Vector3.Dot(myDirection, targetDirection);
+        }
+
+        if (dotProduct > 0)
+        {
+            //means player face player
+            return true;
+        }
+
+        return false;
     }
 
     private void findBall()

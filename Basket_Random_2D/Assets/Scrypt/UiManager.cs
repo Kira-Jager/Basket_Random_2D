@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -13,12 +14,21 @@ public class UiManager : MonoBehaviour
 
     public GameObject blackBg = null;
 
+    public GameObject selectOpponentPanel = null;
+
+    public GameObject settingsPanel = null;
+
+    public delegate void selectOponentAction(bool onePlayerSelected);
+    public static event selectOponentAction selectOponnent;
+
     // Start is called before the first frame update
     void Start()
     {
         stopGame();
-        startButton.SetActive(true);
+        selectOpponentPanel.SetActive(true);
+        //startButton.SetActive(true);
         blackBg.SetActive(false);
+        ScorePanel.SetActive(false);
     }
 
     // Update is called once per frame
@@ -31,7 +41,10 @@ public class UiManager : MonoBehaviour
     {
         Time.timeScale = 1;
         Debug.Log("Game Start");
-        startButton.SetActive(false);
+        //startButton.SetActive(false);
+        selectOpponentPanel.SetActive(false);
+        ScorePanel.SetActive(true);
+
     }
 
     public void restartGame()
@@ -89,6 +102,39 @@ public class UiManager : MonoBehaviour
     public void stopGame()
     {
         Time.timeScale = 0;
+    }
+
+    public void onePlayerSelected()
+    {
+        //true means one player is selected 
+        selectOponnent?.Invoke(true);
+        selectOpponentPanel.GetComponent<Animation>().Play();
+        startGame();
+    }
+
+    public void twoPlayerSelected()
+    {
+        //false means two player is selected 
+        selectOponnent?.Invoke(false);
+        selectOpponentPanel.GetComponent<Animation>().Play();
+        startGame();
+
+    }
+
+    public void displaySettings()
+    {
+        stopGame();
+
+        settingsPanel.SetActive(true);
+
+        GameManager.instance.playAudio(GameManager.instance.gameMusic, loop: true);
+    }
+
+    public void removeSettings()
+    {
+        startGame();
+
+        settingsPanel.SetActive(false);
     }
 
 

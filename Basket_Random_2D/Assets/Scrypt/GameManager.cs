@@ -19,20 +19,49 @@ public class GameManager : MonoBehaviour
     public float targetMaxHeightValue = 8.5f;
 
 
+    public GameObject GameObjects = null;
     public GameObject[] limitBounds = null;
     public GameObject Timer = null;
+    public GameObject AiControlerPlayer = null;
+    
 
-    private string _timer = null;
-    private bool hasGameEnded = false;
+    public AudioClip drible_audio = null;
+    public AudioClip gameMusic = null;
 
     public delegate void endGameEvent(String Winner);
     public static event endGameEvent onEndGame;
+
+    
+    private AudioSource audioSource = null;
+    
+    private string _timer = null;
+    private bool hasGameEnded = false;
+
+
+    //this is a singleton
+    public static GameManager instance = null;
+
+
+
+    public void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         //stopGame();
+        GameObjects.SetActive(false);
+
+        audioSource = GetComponent<AudioSource>();
+
         _timer = Timer.GetComponent<TextMeshProUGUI>().text;
+
+        playAudio(gameMusic, true);
     }
 
     // Update is called once per frame
@@ -40,6 +69,36 @@ public class GameManager : MonoBehaviour
     {
         timer();
     }
+
+
+    private void OnEnable()
+    {
+        UiManager.selectOponnent += opponentSelect;
+    }
+
+    private void OnDisable()
+    {
+        UiManager.selectOponnent -= opponentSelect;
+    }
+
+
+
+    private void opponentSelect(bool boolean)
+    {
+        if (!boolean)
+        {
+            AiControlerPlayer.GetComponent<AiController>().enabled = false;
+            AiControlerPlayer.GetComponent <InputController>().enabled = true;
+        }
+        else
+        {
+            AiControlerPlayer.GetComponent<AiController>().enabled = true;
+            AiControlerPlayer.GetComponent<InputController>().enabled = false;
+        }
+
+        GameObjects.SetActive(true);
+    }
+
 
     private void timer()
     {
@@ -60,7 +119,38 @@ public class GameManager : MonoBehaviour
         }
     }
 
-   
+    public void playAudio(AudioClip audioClip, bool loop = false)
+    {
+        if (audioClip != null)
+        {
+            if (loop)
+            {
+                audioSource.clip = audioClip;
+                audioSource.loop = true;
+                audioSource.Play();
+            }
+            else
+            {
+                audioSource.loop = false;
+
+                audioSource.PlayOneShot(audioClip);
+            }
+        }
+    }
+
+    public bool IsPlayingAudio(AudioClip audioClip)
+    {
+        return audioSource.clip == audioClip && audioSource.isPlaying;
+    }
+
+    public void stopAudio()
+    {
+       
+            audioSource.loop = false;
+
+            audioSource.Stop();
+
+    }
 
     private string gameWinner()
     {

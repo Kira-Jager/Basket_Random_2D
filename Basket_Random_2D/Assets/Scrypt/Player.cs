@@ -142,7 +142,7 @@ public class Player : MonoBehaviour
         ballCathed = false;
 
         //isJumping = false;
-        //Debug.Log(transform.gameObject.name + " Another Player touch the ball");
+        Debug.Log(transform.gameObject.name + " Another Player touch the ball");
 
     }
     private void throwActionOnDoublePlayer()
@@ -231,7 +231,12 @@ public class Player : MonoBehaviour
                 transform.rotation = Quaternion.Euler(rotation);
             }
 
+            
+            gameManager.stopAudio();
+
             isJumping = true;
+
+            //Invoke("disableJumping", 2f);
 
             //onJumpKeyPressed?.Invoke();
 
@@ -255,6 +260,12 @@ public class Player : MonoBehaviour
 
 
         }
+    }
+
+    private void disableJumping()
+    {
+        //this is for the purpose to correct a bug of player being stack on the ball
+        isJumping = false;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -284,18 +295,28 @@ public class Player : MonoBehaviour
 
             setAnimation("drible", true);
 
-           //this is for the ai
+            //gameManager.stopAudio();
+            if (!gameManager.IsPlayingAudio(gameManager.drible_audio))
+            {
+                //true means to loop the clip
+                gameManager.playAudio(gameManager.drible_audio, true);
+            }
+
+            //this is for the ai
             //playerCatchball?.Invoke();
 
         }
 
     }
 
+
+
     private void OnCollisionExit(Collision collision)
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("ground"))
         {
             setAnimation("drible", false);
+
         }
 
     }

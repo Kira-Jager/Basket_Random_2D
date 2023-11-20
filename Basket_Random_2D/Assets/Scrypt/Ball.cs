@@ -113,6 +113,7 @@ public class Ball : MonoBehaviour
             if (previousPlayer != currentPlayer)
             {
                 ballOnGround = false;
+
                 previousPlayer.anotherPlayerGetBall();
 
                 previousPlayer = currentPlayer;
@@ -125,6 +126,8 @@ public class Ball : MonoBehaviour
         {
             // this is for the AI to know that ball is on ground 
             ballOnGround = true;
+            GameManager.instance.playAudio(GameManager.instance.drible_audio, false);
+
         }
     }
 
