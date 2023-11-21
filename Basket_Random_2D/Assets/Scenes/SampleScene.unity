@@ -1126,6 +1126,8 @@ MonoBehaviour:
   AiControlerPlayer: {fileID: 808136417}
   drible_audio: {fileID: 8300000, guid: 5538cc72e961f5f45a39c838f53ac8de, type: 3}
   gameMusic: {fileID: 8300000, guid: fb5ba89e66575284c9a6d569ef17dd52, type: 3}
+  ballCollisionSound: {fileID: 8300000, guid: bf427ef1c865d2a4c8e52055e573c09c, type: 3}
+  onStartSound: {fileID: 8300000, guid: 45ee7eb12ee996e4aa6bca9de21bbc80, type: 3}
 --- !u!4 &490619272
 Transform:
   m_ObjectHideFlags: 0
@@ -1153,7 +1155,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0

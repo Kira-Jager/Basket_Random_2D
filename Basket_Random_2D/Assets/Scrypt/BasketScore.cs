@@ -38,6 +38,7 @@ public class BasketScore : MonoBehaviour
 
         StartCoroutine(scoreEvent(other));
 
+        GameManager.instance.playAudio(GameManager.instance.onStartSound, loop: false);
     }
 
     private IEnumerator scoreEvent(Collider other)

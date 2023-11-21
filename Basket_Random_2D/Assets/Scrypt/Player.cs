@@ -24,7 +24,10 @@ public class Player : MonoBehaviour
     private Animator animator;
 
     private Rigidbody rb;
-    
+
+    private AudioSource dribleAudioSource = null;
+
+
     private bool isJumping = false;
     private bool ballCathed = false;
     private bool playerScore = false;
@@ -48,6 +51,9 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         gameManager = FindObjectOfType<GameManager>();
         ballComponent = FindObjectOfType<Ball>().gameObject;
+        dribleAudioSource = GetComponent<AudioSource>();
+
+        dribleAudioSource.enabled = false;
 
         playerInitialPosition = transform.position;
         playerInitialRotation = transform.rotation;
@@ -126,6 +132,8 @@ public class Player : MonoBehaviour
     private void playeronEndGameEvent(string winnerName)
     {
         ballComponent.GetComponent<Ball>().resetBall();
+        dribleAudioSource.enabled = false;
+
         resetPlayer();
 
         //ballCathed = false;
@@ -141,7 +149,6 @@ public class Player : MonoBehaviour
     {
         ballCathed = false;
 
-        //isJumping = false;
         Debug.Log(transform.gameObject.name + " Another Player touch the ball");
 
     }
@@ -173,17 +180,7 @@ public class Player : MonoBehaviour
     public void playerThrowBall()
     {
 
-        //Debug.Log("Ball catched state in player throw ball" + ballCathed);
-
-
-       /* if( distancePlayerTarget() <= 2f)
-        {
-            makePlayerReturn = true;
-        }
-
-         else */
          if (ballCathed && getThrowingDirection())
-        //if ( controlThrowingDirection())
         {
             disableBoxCollider();
 
@@ -205,14 +202,12 @@ public class Player : MonoBehaviour
 
     private void disableBoxCollider()
     {
-        //BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
         BoxCollider boxCollider = GetComponent<BoxCollider>();
 
         boxCollider.enabled = false;
     }
     private void activateBoxCollider()
     {
-        //BoxCollider boxCollider = transform.GetChild(0).GetComponent<BoxCollider>();
         BoxCollider boxCollider = GetComponent<BoxCollider>();
 
         boxCollider.enabled = true;
@@ -231,14 +226,12 @@ public class Player : MonoBehaviour
                 transform.rotation = Quaternion.Euler(rotation);
             }
 
-            
-            gameManager.stopAudio();
+            dribleAudioSource.enabled = false;
+
 
             isJumping = true;
 
             //Invoke("disableJumping", 2f);
-
-            //onJumpKeyPressed?.Invoke();
 
             if (ballComponent != null && ballCathed)
             {
@@ -295,15 +288,9 @@ public class Player : MonoBehaviour
 
             setAnimation("drible", true);
 
-            //gameManager.stopAudio();
-            if (!gameManager.IsPlayingAudio(gameManager.drible_audio))
-            {
-                //true means to loop the clip
-                gameManager.playAudio(gameManager.drible_audio, true);
-            }
-
-            //this is for the ai
-            //playerCatchball?.Invoke();
+            //audio
+            dribleAudioSource.enabled = true;
+            dribleAudioSource.Play();
 
         }
 

@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
 
     public AudioClip drible_audio = null;
     public AudioClip gameMusic = null;
+    public AudioClip ballCollisionSound = null;
+    public AudioClip onStartSound = null;
 
     public delegate void endGameEvent(String Winner);
     public static event endGameEvent onEndGame;
@@ -138,9 +140,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public bool IsPlayingAudio(AudioClip audioClip)
+    public bool IsPlayingAudio()
     {
-        return audioSource.clip == audioClip && audioSource.isPlaying;
+        return audioSource.isPlaying;
     }
 
     public void stopAudio()

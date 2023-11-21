@@ -45,6 +45,9 @@ public class UiManager : MonoBehaviour
         selectOpponentPanel.SetActive(false);
         ScorePanel.SetActive(true);
 
+        GameManager.instance.stopAudio();
+        GameManager.instance.playAudio(GameManager.instance.onStartSound, loop: false);
+
     }
 
     public void restartGame()

@@ -106,6 +106,14 @@ public class Ball : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.layer != LayerMask.NameToLayer("ground") || collision.gameObject.layer != LayerMask.NameToLayer("player"))
+        {
+            if (!GameManager.instance.IsPlayingAudio())
+            {
+                GameManager.instance.playAudio(GameManager.instance.ballCollisionSound, loop: false);
+            }
+        }
+
         if (currentPlayer != null && collision.gameObject.layer == LayerMask.NameToLayer("player"))
         {
             //Debug.Log("Previous player name " + previousPlayer.gameObject.name);
