@@ -17,11 +17,11 @@ public class AiController : MonoBehaviour
     private bool ballDirection = false;
 
     private float timer;
-    private float threshold = 2f;
-    private float BufferRelativeMinX = 0f;
-    private float BufferRelativeMaxX = 0f;
+    //private float threshold = 2f;
+    //private float BufferRelativeMinX = 0f;
+    //private float BufferRelativeMaxX = 0f;
 
-    private bool opponentHaveBall = false;
+    //private bool opponentHaveBall = false;
     void Start()
     {
         player = GetComponent<Player>();
@@ -31,10 +31,10 @@ public class AiController : MonoBehaviour
         timer = gameManager.aiTimer;
         if (AiBuffer != null)
         {
-            MeshRenderer meshRenderer = AiBuffer.GetComponent<MeshRenderer>();
+            //MeshRenderer meshRenderer = AiBuffer.GetComponent<MeshRenderer>();
 
-            BufferRelativeMinX = meshRenderer.bounds.min.x - player.transform.position.x;
-            BufferRelativeMaxX = meshRenderer.bounds.max.x - player.transform.position.x;
+            //BufferRelativeMinX = meshRenderer.bounds.min.x - player.transform.position.x;
+            //BufferRelativeMaxX = meshRenderer.bounds.max.x - player.transform.position.x;
         }
     }
 
@@ -92,7 +92,7 @@ public class AiController : MonoBehaviour
         if (otherPlayer != null && currentPlayer != null && otherPlayer != currentPlayer)
         {
             float distance = Mathf.Abs(currentPlayer.transform.position.x - otherPlayer.transform.position.x);
-            Debug.Log("Distance P - P = : " + distance);
+            //Debug.Log("Distance P - P = : " + distance);
             return distance;
         }
 
@@ -103,7 +103,7 @@ public class AiController : MonoBehaviour
 
     private void findToCatchBall()
     {
-
+        //player is the component attached to this gameObject
         if (ball.getCurrentPlayer() != null && ball.getCurrentPlayer() != player)
         {
             timer -= Time.deltaTime;
@@ -115,7 +115,7 @@ public class AiController : MonoBehaviour
                 }
             }
 
-            if (!playerFacePlayer() && distancePlayerPlayer() <= 1f)
+            if (!playerFacePlayer() && distancePlayerPlayer() <= 1.2f)
             {
                 //this is in case of the player is behind the opponent then it have to catch the ball
                 timer -= Time.deltaTime;
@@ -130,7 +130,7 @@ public class AiController : MonoBehaviour
 
     }
 
-    private void movePlayerAround()
+    /*private void movePlayerAround()
     {
         if (player.getBallCath())
         {
@@ -141,7 +141,7 @@ public class AiController : MonoBehaviour
             }
             timer = gameManager.aiTimer;
         }
-    }
+    }*/
 
 
     private void OnEnable()
@@ -200,13 +200,13 @@ public class AiController : MonoBehaviour
             dotProduct = Vector3.Dot(-playerDirection, targetDirection);
         }
 
-        if (dotProduct > 0.5f)
+        if (dotProduct > 0.6f)
         {
             /*Debug.Log("AI going right");
             Debug.Log("dot product = " + 1);*/
             ballDirection = true;
         }
-        else if (dotProduct < -0.5f)
+        else if (dotProduct < -0.6f)
         {
             ballDirection = false;
         }
@@ -231,7 +231,7 @@ public class AiController : MonoBehaviour
             dotProduct = Vector3.Dot(myDirection, targetDirection);
         }
 
-        if (dotProduct > 0)
+        if (dotProduct > 0.6)
         {
             //means player face player
             return true;

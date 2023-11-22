@@ -32,7 +32,8 @@ public class Player : MonoBehaviour
     private bool ballCathed = false;
     private bool playerScore = false;
     private bool endGame = false;
-    private bool makePlayerReturn = false;
+    private bool soundState = false;
+    //private bool makePlayerReturn = false;
 
     private float movingDirection = 0;
 
@@ -108,6 +109,8 @@ public class Player : MonoBehaviour
         BasketScore.onePlayerScore += onePlayerScoreEvent;
 
         GameManager.onEndGame += playeronEndGameEvent;
+        GameManager.soundDisable += getSoundState;
+
         //inate Event
         onePlayerThrow += throwActionOnDoublePlayer;
 
@@ -123,10 +126,16 @@ public class Player : MonoBehaviour
         BasketScore.onePlayerScore -= onePlayerScoreEvent;
 
         GameManager.onEndGame -= playeronEndGameEvent;
+        GameManager.soundDisable -= getSoundState;
 
         //inate Event
         onePlayerThrow -= throwActionOnDoublePlayer;
 
+    }
+
+    private void getSoundState(bool soundState)
+    {
+        this.soundState = soundState;
     }
 
     private void playeronEndGameEvent(string winnerName)
@@ -149,12 +158,14 @@ public class Player : MonoBehaviour
     {
         ballCathed = false;
 
-        Debug.Log(transform.gameObject.name + " Another Player touch the ball");
+        //Debug.Log(transform.gameObject.name + " Another Player touch the ball");
 
     }
     private void throwActionOnDoublePlayer()
     {
         ballCathed = false;
+        dribleAudioSource.enabled = false;
+
         //Debug.Log("DOuble player action");
     }
 
@@ -289,8 +300,13 @@ public class Player : MonoBehaviour
             setAnimation("drible", true);
 
             //audio
-            dribleAudioSource.enabled = true;
-            dribleAudioSource.Play();
+
+            if(soundState == false)
+            {
+                dribleAudioSource.enabled = true;
+                dribleAudioSource.Play();
+            }
+            
 
         }
 
@@ -310,7 +326,7 @@ public class Player : MonoBehaviour
 
     public void move(bool isMovingRight)
     {
-        if (!isJumping && !playerScore && !endGame)
+        if (!isJumping && !playerScore && !endGame && Time.timeScale > 0)
         {
 
             movingDirection = isMovingRight ? 1 : -1;
@@ -338,6 +354,7 @@ public class Player : MonoBehaviour
         //Debug.Log("State on Score event" + state);
         playerScore = state;
 
+        dribleAudioSource.enabled = false;
 
         if (state)
         {
@@ -396,5 +413,10 @@ public class Player : MonoBehaviour
     {
         //Debug.Log("stopRunning");
         setAnimation("run", false);
+    }
+
+    public void disableAudioSource()
+    {
+        dribleAudioSource.enabled = false;
     }
 }

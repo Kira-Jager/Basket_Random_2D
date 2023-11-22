@@ -29,6 +29,8 @@ public class UiManager : MonoBehaviour
         //startButton.SetActive(true);
         blackBg.SetActive(false);
         ScorePanel.SetActive(false);
+        settingsPanel.SetActive(true);
+
     }
 
     // Update is called once per frame
@@ -121,7 +123,6 @@ public class UiManager : MonoBehaviour
         selectOponnent?.Invoke(false);
         selectOpponentPanel.GetComponent<Animation>().Play();
         startGame();
-
     }
 
     public void displaySettings()

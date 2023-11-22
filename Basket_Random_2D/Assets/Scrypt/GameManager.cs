@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -23,7 +25,12 @@ public class GameManager : MonoBehaviour
     public GameObject[] limitBounds = null;
     public GameObject Timer = null;
     public GameObject AiControlerPlayer = null;
-    
+
+
+    public Image soundButtonImage;
+    public Sprite soundOn = null;
+    public Sprite soundOff = null;
+
 
     public AudioClip drible_audio = null;
     public AudioClip gameMusic = null;
@@ -32,6 +39,9 @@ public class GameManager : MonoBehaviour
 
     public delegate void endGameEvent(String Winner);
     public static event endGameEvent onEndGame;
+    
+    public delegate void soundDisableAction(bool isDisable);
+    public static event soundDisableAction soundDisable;
 
     
     private AudioSource audioSource = null;
@@ -123,7 +133,7 @@ public class GameManager : MonoBehaviour
 
     public void playAudio(AudioClip audioClip, bool loop = false)
     {
-        if (audioClip != null)
+        if (audioClip != null && audioSource.enabled)
         {
             if (loop)
             {
@@ -147,12 +157,23 @@ public class GameManager : MonoBehaviour
 
     public void stopAudio()
     {
-       
-            audioSource.loop = false;
-
-            audioSource.Stop();
-
+         audioSource.loop = false;
+         audioSource.Stop();
     }
+
+    public void DisableAllAudio()
+    {
+        AudioSource[] audios = FindObjectsOfType<AudioSource>();
+      
+        for(int i = 0; i < audios.Length; i++)
+        {
+            audios[i].enabled = !audios[i].enabled;
+        }
+        soundButtonImage.sprite = !audios[audios.Length - 1].enabled ? soundOff : soundOn ;
+
+        soundDisable?.Invoke(!audios[audios.Length - 1].enabled);
+    }
+
 
     private string gameWinner()
     {

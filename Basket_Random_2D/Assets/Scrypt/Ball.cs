@@ -57,6 +57,9 @@ public class Ball : MonoBehaviour
 
     public void throwBall(Transform targeted)
     {
+
+        currentPlayer.disableAudioSource();
+
         target = targeted;
 
         rb.velocity = Vector3.zero;
@@ -87,6 +90,8 @@ public class Ball : MonoBehaviour
         ResetBallPosition(currentPlayer.playerHand.position);
 
         setAnimation("drible", true);
+
+        
 
     }
 
