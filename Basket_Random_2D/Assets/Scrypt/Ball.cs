@@ -126,7 +126,8 @@ public class Ball : MonoBehaviour
             {
                 ballOnGround = false;
 
-                previousPlayer.anotherPlayerGetBall();
+                currentPlayer.getOtherPlayer().anotherPlayerGetBall();
+                //previousPlayer.anotherPlayerGetBall();
 
                 previousPlayer = currentPlayer;
 

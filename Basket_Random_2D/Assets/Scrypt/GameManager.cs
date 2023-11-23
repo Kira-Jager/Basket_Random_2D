@@ -124,6 +124,8 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Game End");
             onEndGame?.Invoke(gameWinner());
+
+            GameObjects.SetActive(false);
             //stopGame();
 
             // flag to true to indicate that the game has ended
@@ -199,5 +201,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
+    public void quitApplication()
+    {
+        Application.Quit();
+    }
 }

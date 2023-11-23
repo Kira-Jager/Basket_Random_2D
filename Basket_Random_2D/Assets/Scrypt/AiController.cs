@@ -52,16 +52,13 @@ public class AiController : MonoBehaviour
             // throw ball if it get the ball
             if (player.getBallCath())
             {
-                //this is just another measure to stop the dribling
-                //player.getOtherPlayer().anotherPlayerGetBall();
-
                 if (timer > 0 && player.distancePlayerPlayer() < 1.3)
                 {
                     player.move(!ballDirection);
                     timer -= Time.deltaTime;
                 }
 
-                Debug.Log("Player face Player = " + playerFacePlayer());
+                //Debug.Log("Player face Player = " + playerFacePlayer());
                 if (player.distancePlayerPlayer() < 1 && playerFacePlayer() == false)
                 {
                     Invoke("throwBall", .6f);

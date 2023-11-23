@@ -130,7 +130,8 @@ public class Player : MonoBehaviour
 
     private void playeronEndGameEvent(string winnerName)
     {
-        ballComponent.GetComponent<Ball>().resetBall();
+        //ballComponent.GetComponent<Ball>().resetBall();
+        ballComponent.SetActive(false);
         dribleAudioSource.enabled = false;
 
         resetPlayer();
@@ -147,6 +148,7 @@ public class Player : MonoBehaviour
     public void anotherPlayerGetBall()
     {
         ballCathed = false;
+        dribleAudioSource.enabled = false;
 
         //Debug.Log(transform.gameObject.name + " Another Player touch the ball");
 
@@ -267,10 +269,10 @@ public class Player : MonoBehaviour
             playerGetBall(collision);
         }
 
-        else if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed)
+        else if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed && !playerScore)
         {
             disableBoxCollider();
-            Invoke("activateBoxCollider", .18f);
+            Invoke("activateBoxCollider", .15f);
         }
     }
 
@@ -305,7 +307,7 @@ public class Player : MonoBehaviour
         if (otherPlayer != this)
         {
             float distance = Mathf.Abs(this.transform.position.x - otherPlayer.transform.position.x);
-            Debug.Log("Distance P - P = : " + distance);
+            //Debug.Log("Distance P - P = : " + distance);
             return distance;
         }
 
