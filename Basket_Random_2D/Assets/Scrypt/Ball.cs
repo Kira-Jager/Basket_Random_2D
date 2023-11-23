@@ -27,6 +27,7 @@ public class Ball : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+
     private void throwBallProjectile()
     {
         rb.isKinematic = false;
@@ -90,8 +91,6 @@ public class Ball : MonoBehaviour
         ResetBallPosition(currentPlayer.playerHand.position);
 
         setAnimation("drible", true);
-
-        
 
     }
 

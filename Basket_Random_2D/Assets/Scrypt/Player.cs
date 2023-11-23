@@ -5,16 +5,11 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-
     public delegate void onePlayerThrowBall();
     public static event onePlayerThrowBall onePlayerThrow;
 
-    //public delegate void playerGetBallAction();
-    //public static event playerGetBallAction playerCatchball;
-    
     public Transform target;
     public Transform playerHand = null;
-
 
     private GameObject ballComponent = null;
     private GameManager gameManager = null;
@@ -27,13 +22,14 @@ public class Player : MonoBehaviour
 
     private AudioSource dribleAudioSource = null;
 
+    private Player otherPlayer = null;
+    private BoxCollider boxCollider = null;
 
     private bool isJumping = false;
     private bool ballCathed = false;
     private bool playerScore = false;
     private bool endGame = false;
     private bool soundState = false;
-    //private bool makePlayerReturn = false;
 
     private float movingDirection = 0;
 
@@ -53,6 +49,7 @@ public class Player : MonoBehaviour
         gameManager = FindObjectOfType<GameManager>();
         ballComponent = FindObjectOfType<Ball>().gameObject;
         dribleAudioSource = GetComponent<AudioSource>();
+        boxCollider = GetComponent<BoxCollider>();
 
         dribleAudioSource.enabled = false;
 
@@ -67,13 +64,6 @@ public class Player : MonoBehaviour
         {
             setAnimation("drible", false);
         }
-
-        /*if (makePlayerReturn)
-        {
-
-                move(!controlThrowingDirection());
-            
-        }*/
 
     }
 
@@ -191,7 +181,7 @@ public class Player : MonoBehaviour
     public void playerThrowBall()
     {
 
-         if (ballCathed && getThrowingDirection())
+        if (ballCathed && getThrowingDirection())
         {
             disableBoxCollider();
 
@@ -211,15 +201,13 @@ public class Player : MonoBehaviour
 
     }
 
-    private void disableBoxCollider()
+    public void disableBoxCollider()
     {
-        BoxCollider boxCollider = GetComponent<BoxCollider>();
 
         boxCollider.enabled = false;
     }
-    private void activateBoxCollider()
+    public void activateBoxCollider()
     {
-        BoxCollider boxCollider = GetComponent<BoxCollider>();
 
         boxCollider.enabled = true;
     }
@@ -266,12 +254,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void disableJumping()
-    {
-        //this is for the purpose to correct a bug of player being stack on the ball
-        isJumping = false;
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("ground"))
@@ -280,38 +262,70 @@ public class Player : MonoBehaviour
             setAnimation("jumping", false);
         }
 
-        playerGetBall(collision);
+        if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed && !playerScore && !isJumping)
+        {
+            playerGetBall(collision);
+        }
+
+        else if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed)
+        {
+            disableBoxCollider();
+            Invoke("activateBoxCollider", .18f);
+        }
     }
 
     private void playerGetBall(Collision collision)
     {
 
-        //if (collision.gameObject.CompareTag("ball") && !ballCathed)
-        if (collision.gameObject.layer == LayerMask.NameToLayer("ball") && !ballCathed && !playerScore && !isJumping)
+        ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
+
+        //Debug.Log("is jumping " + gameObject.name + isJumping);
+
+        ballComponent.GetComponent<Ball>().ballCatch(this);
+
+        ballCathed = true;
+
+        setAnimation("drible", true);
+
+        //audio
+
+        if (soundState == false)
         {
-            ballComponent = collision.gameObject; // Update lastCollision only if it's a valid ball collision
-
-            //Debug.Log("is jumping " + gameObject.name + isJumping);
-
-            ballComponent.GetComponent<Ball>().ballCatch(this);
-
-            ballCathed = true;
-
-            setAnimation("drible", true);
-
-            //audio
-
-            if(soundState == false)
-            {
-                dribleAudioSource.enabled = true;
-                dribleAudioSource.Play();
-            }
-            
-
+            dribleAudioSource.enabled = true;
+            dribleAudioSource.Play();
         }
+
+        //otherPlayer.anotherPlayerGetBall();
 
     }
 
+    public float distancePlayerPlayer()
+    {
+        getOtherPlayer();
+        if (otherPlayer != this)
+        {
+            float distance = Mathf.Abs(this.transform.position.x - otherPlayer.transform.position.x);
+            Debug.Log("Distance P - P = : " + distance);
+            return distance;
+        }
+
+        // Return a distance greater than 1 for findBalltoCatch
+        return 1.1f;
+    }
+
+    public Player getOtherPlayer()
+    {
+        //this is to help the AI for calculation
+        Player currentPlayer = this;
+        foreach (Player player in FindObjectsOfType<Player>())
+        {
+            if (player != currentPlayer)
+            {
+                otherPlayer = player;
+            }
+        }
+        return otherPlayer;
+    }
 
 
     private void OnCollisionExit(Collision collision)
@@ -359,7 +373,7 @@ public class Player : MonoBehaviour
         if (state)
         {
             Player Scorer = ballComponent.GetComponent<Ball>().getPlayerWhoScore();
-            
+
             //ballComponent.GetComponent<Animator>().enabled = false;
 
             if (Scorer.gameObject.transform == this.gameObject.transform)
@@ -368,13 +382,14 @@ public class Player : MonoBehaviour
                 //Debug.Log(" Scorer anim start by " + this.gameObject.name);
             }
             //if(Scorer.gameObject.transform != this.gameObject.transform)
-            else{
+            else
+            {
                 setAnimation("loser", true);
                 //Debug.Log(" loser anim start by " + this.gameObject.name);
             }
             Invoke("resetPlayer", 2f);
         }
-        
+
     }
 
     private void resetPlayer()
@@ -418,5 +433,10 @@ public class Player : MonoBehaviour
     public void disableAudioSource()
     {
         dribleAudioSource.enabled = false;
+    }
+
+    public bool getJumpingState()
+    {
+        return isJumping;
     }
 }
