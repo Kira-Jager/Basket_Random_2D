@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
 
 public class UiManager : MonoBehaviour
 {
@@ -17,6 +19,11 @@ public class UiManager : MonoBehaviour
     public GameObject selectOpponentPanel = null;
 
     public GameObject settingsPanel = null;
+
+    public Image winnerImg = null;
+
+    public Sprite player1Img = null;
+    public Sprite player2Img = null;
 
     public delegate void selectOponentAction(bool onePlayerSelected);
     public static event selectOponentAction selectOponnent;
@@ -90,14 +97,22 @@ public class UiManager : MonoBehaviour
     {
         endPanel.SetActive(true);
         GameObject displayTextObject = endPanel.gameObject.transform.GetChild(0).gameObject;
+        blackBg.SetActive(false);
 
-        if(winnerName == "Draw")
+        if (winnerName == "Draw")
         {
             displayTextObject.GetComponent<TextMeshProUGUI>().text = winnerName;
+            winnerImg.enabled = false;
+        }
+        else if(winnerName == "Player 1")
+        {
+            displayTextObject.GetComponent<TextMeshProUGUI>().text = $"Winner is {winnerName}" ;
+            winnerImg.sprite = player1Img;
         }
         else
         {
-            displayTextObject.GetComponent<TextMeshProUGUI>().text = $"Winner is {winnerName}" ;
+            displayTextObject.GetComponent<TextMeshProUGUI>().text = $"Winner is {winnerName}";
+            winnerImg.sprite = player2Img;
         }
 
         stopGame();
