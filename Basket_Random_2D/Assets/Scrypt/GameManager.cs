@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 {
 
     public float GameTimer = 180f;
-    public float speed = 5f;
+    public float speed = 0.11f;
     public float jumpForce = 5f;
     public float aiTimer = 3f;
 
